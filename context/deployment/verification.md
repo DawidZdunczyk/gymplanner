@@ -37,7 +37,7 @@ Wykryte podczas implementacji i usunięte problemy: reguła lint crashowała dla
 
 ## Stan usług i pozostałe sprawdzenia
 
-Użytkownik wskazał `https://github.com/DawidZdunczyk/gymplanner` i potwierdził gotowe konto Cloudflare. Git potrafi odczytać repozytorium; GitHub CLI nie jest zalogowany. Zdalne repo ma początkowy commit README, inny niż lokalna historia — integracja musi zachować oba, bez force-push. Publiczne API repo zwraca 404 przy poprawnym dostępie przez Git, co jest zgodne z prywatną widocznością.
+Użytkownik wskazał `https://github.com/DawidZdunczyk/gymplanner` i potwierdził gotowe konto Cloudflare. Git potrafi odczytać repozytorium; GitHub CLI nie jest zalogowany. Integracja historii zachowuje lokalny commit początkowy `89c037d` i zdalny `9cad9f7`, bez force-push. Konflikt ograniczał się do README: zachowano pełną instrukcję projektu w miejsce zdalnego nagłówka. Publiczne API repo zwraca 404 przy poprawnym dostępie przez Git, co jest zgodne z prywatną widocznością.
 
 Użytkownik konfiguruje projekty Supabase, konta smoke i sekrety/zmienne GitHub. Nie wykonano jeszcze publikacji Cloudflare, zdalnego smoke, zdalnego rollback ani pomiarów CPU. Lokalny sukces nie potwierdza tych operacji.
 
