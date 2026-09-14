@@ -42,7 +42,7 @@ Użytkownik wybrał cel `market-feedback` i brak blokady planowania (`none`). Ob
 
 | ID   | Change ID                    | Outcome                                             | Prerequisites | PRD refs                                             | Status   |
 | ---- | ---------------------------- | --------------------------------------------------- | ------------- | ---------------------------------------------------- | -------- |
-| S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | —             | FR-001, FR-002, US-01                                | ready    |
+| S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | —             | FR-001, FR-002, US-01                                | in-progress |
 | S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | S-01          | FR-002, FR-003, FR-005, FR-012, FR-015, US-01, US-04 | proposed |
 | S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | S-02          | FR-005, FR-006, FR-009, FR-012, US-01, US-04         | proposed |
 | S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | S-03          | FR-007, FR-009, FR-015, US-01, US-04                 | proposed |
@@ -95,7 +95,7 @@ Brak osobnych fundamentów. Minimalne przypisania, kontrola dostępu i ścieżka
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Pierwszy przepływ ustanawia i sprawdza izolację użytkowników, zanim pojawią się jakiekolwiek dane treningowe.
-- **Status:** ready
+- **Status:** in-progress
 
 Wykorzystać istniejące logowanie. W tym przepływie wprowadzić minimalne role, przypisania i ich egzekwowanie oraz powtarzalną weryfikację dwóch ról i obcej relacji na danych testowych. Przygotowanie kont i relacji pozostaje operacyjne, bez interfejsu rejestracji lub zaproszeń.
 

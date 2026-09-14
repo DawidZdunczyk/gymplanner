@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "smoke": "node scripts/smoke.mjs",
     "smoke:local": "node scripts/local-smoke.mjs",
+    "check:access:db": "node scripts/local-access.mjs --db-only",
     "check:deployment": "node --test scripts/deployment.test.mjs",
     "deploy:staging": "node scripts/deploy.mjs staging",
     "deploy:production": "node scripts/deploy.mjs production"
