@@ -42,6 +42,7 @@ Do lokalnego uruchamiania deploya można ustawić te same nazwy w środowisku pr
 - GitHub → Actions → **CI and deployment** → Run workflow → `main`.
 - Workflow uruchamia lokalne kontrole i Supabase smoke, potem staging, a dopiero po jego powodzeniu produkcję; oba z tym samym SHA.
 - Każdy deploy buduje właściwe środowisko przez `CLOUDFLARE_ENV`, sprawdza wygenerowaną konfigurację i przekazuje sekrety przez plik 0600 w katalogu tymczasowym. Nie tworzy KV, R2 ani Images.
+- Po publikacji skrypt czeka maksymalnie 120 sekund na HTTP 200 strony głównej, ponawiając wyłącznie anonimowy GET przy przejściowych błędach sieci/routingu. Potem wykonuje pełny smoke; samo HTTP 200 nie oznacza sukcesu wdrożenia. Stały błąd nadal kończy wdrożenie niepowodzeniem.
 - Pierwszy staging publikuje dodatkową wersję tego samego sprawdzonego artefaktu, przywraca pierwszą wersję i powtarza smoke: próba rollback przed produkcją.
 - Raporty `deployment-staging-<sha>` i `deployment-production-<sha>` zawierają URL, SHA, identyfikatory wersji oraz stan przywracania. Nie zawierają sekretów.
 - Po pozytywnym wyniku i odczycie logów ustawić `DEPLOY_ENABLED=true`. Następne push do `main` (standardowo po merge PR) uruchamiają tę samą sekwencję. PR nie mają dostępu do sekretów publikacji.
@@ -78,13 +79,15 @@ npm run smoke:local
 
 W Actions krok `Prepare isolated Supabase project and free ports` tworzy tymczasową kopię `supabase/config.toml` z unikalnym `project_id` i sprawdzonymi wolnymi portami w zakresie 15420–24999. Start, odczyt statusu przez `smoke:local` i końcowe zatrzymanie używają tego samego `SUPABASE_WORKDIR`. Konfiguracja dewelopera i jego kontenery pozostają nienaruszone. Kopia CI obejmuje konfigurację startera; przed dodaniem migracji domenowych należy rozszerzyć ją również o pliki migracji/seed. Ustawienia lokalnej instancji opisuje [Supabase CLI config](https://supabase.com/docs/guides/local-development/cli/config).
 
-Test hostowany: `SMOKE_MODE=existing`, `BASE_URL` właściwego Workera, `SMOKE_EMAIL` i `SMOKE_PASSWORD` przekazane przez środowisko, następnie `npm run smoke`. Nie tworzy użytkownika; sprawdza blokadę rejestracji, logowanie, odświeżenie i wylogowanie. Skrypt domyślnie wybiera istniejące konto, nigdy signup.
+Test hostowany: `SMOKE_MODE=existing`, `BASE_URL` właściwego Workera, `SMOKE_EMAIL` i `SMOKE_PASSWORD` przekazane przez środowisko, następnie `npm run smoke`. Nie tworzy użytkownika; sprawdza nawigację przeglądarki, blokadę rejestracji, logowanie, odświeżenie i wylogowanie. Skrypt domyślnie wybiera istniejące konto, nigdy signup.
 
 Logi: `npx wrangler tail gymplanner --format json` lub `gymplanner-staging`, z tokenem odczytu. W Cloudflare sprawdzić CPU i błędy dla strony głównej oraz logowania (szczególnie 1102 / exceeded limits); HTTP smoke nie zastępuje pomiaru CPU. Zewnętrzne wywołania Supabase zużywają czas sieciowy, który nie jest tym samym co CPU. Brak funkcji treningowych oznacza, że ich przyszła wydajność jest jeszcze niezweryfikowana.
 
 ## Przywracanie i pierwsza awaria
 
-Skrypt przed publikacją zapamiętuje aktywną wersję. Jeśli publikacja lub smoke zawiodą po aktywacji nowej wersji, cofa do poprzedniej i ponownie sprawdza logowanie. Pierwsza awaria bez wcześniejszej wersji wyłącza publiczny adres Workera; nie usuwa zasobów. Awaria przywracania jest wyraźnie oznaczona w raporcie i wymaga interwencji.
+Skrypt przed publikacją zapamiętuje aktywną wersję i stan publicznego adresu. Jeśli publikacja lub smoke zawiodą po aktywacji nowej wersji, cofa do poprzedniej i ponownie sprawdza logowanie. Gdy nie było wcześniejszej wersji lub jej adres był wyłączony po awarii, ponownie wyłącza publiczny adres Workera; nie usuwa zasobów ani nie przywraca niezweryfikowanej wersji jako działającej. Awaria przywracania jest wyraźnie oznaczona w raporcie i wymaga interwencji.
+
+Po poprawce uruchomić nowe **Run workflow → main**, zamiast **Re-run jobs** starego commita. Konfiguracja `workers_dev=true` ponownie udostępni adres przy publikacji. Próba rollback staging nadal odbędzie się po pierwszym udanym smoke, również przy ponowieniu po wyłączeniu adresu. Raport odróżnia wersję opublikowaną od zweryfikowanej i podaje komunikat błędu.
 
 Ręcznie, z identyfikatorem poprzedniej sprawdzonej wersji z raportu:
 

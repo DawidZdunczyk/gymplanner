@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { readDeploymentConfig, validatePublicKey } from "./deployment-config.mjs";
 import { readSmokeConfig } from "./smoke.mjs";
 import { prepareCiSupabase } from "./prepare-ci-supabase.mjs";
+import { waitForWorker } from "./worker-readiness.mjs";
 
 const env = {
   CLOUDFLARE_ACCOUNT_ID: "a".repeat(32),
@@ -95,4 +96,78 @@ test("CI skips occupied ports and isolates project identity without changing dev
   assert.ok(config.includes(`project_id = "${first.project}"`));
   assert.doesNotMatch(config, /^port = 54322$/m);
   assert.equal(await readFile("supabase/config.toml", "utf8"), original);
+});
+
+test("readiness waits through network and edge errors using anonymous GET only", async () => {
+  let clock = 0;
+  const replies = [new Error("network"), 404, 523, 200];
+  let calls = 0;
+  await waitForWorker(env.STAGING_URL, {
+    timeoutMs: 100,
+    intervalMs: 10,
+    now: () => clock,
+    pause: async (ms) => {
+      clock += ms;
+    },
+    log: () => {
+      /* Suppress expected retry messages in tests. */
+    },
+    request: async (url, options) => {
+      assert.equal(url, env.STAGING_URL);
+      assert.equal(options.method, "GET");
+      assert.equal(options.redirect, "manual");
+      assert.equal(options.body, undefined);
+      assert.equal(options.headers.Authorization, undefined);
+      const reply = replies[calls++];
+      if (reply instanceof Error) throw reply;
+      return { status: reply };
+    },
+  });
+  assert.equal(calls, 4);
+  assert.equal(clock, 30);
+});
+
+test("readiness fails on persistent 404 within its deadline", async () => {
+  let clock = 0;
+  let calls = 0;
+  await assert.rejects(
+    waitForWorker(env.STAGING_URL, {
+      timeoutMs: 30,
+      intervalMs: 10,
+      now: () => clock,
+      pause: async (ms) => {
+        clock += ms;
+      },
+      log: () => {
+        /* Suppress expected retry messages in tests. */
+      },
+      request: async () => {
+        calls++;
+        return { status: 404 };
+      },
+    }),
+    /not ready.*HTTP 404/,
+  );
+  assert.equal(calls, 3);
+  assert.equal(clock, 30);
+});
+
+test("readiness does not retry auth failures, redirects or application errors", async () => {
+  for (const status of [302, 401, 403, 500]) {
+    let calls = 0;
+    await assert.rejects(
+      waitForWorker(env.STAGING_URL, {
+        log: () => {
+          /* Suppress expected retry messages in tests. */
+        },
+        request: async () => {
+          calls++;
+          return { status };
+        },
+        pause: async () => assert.fail("Unexpected retry"),
+      }),
+      new RegExp(`readiness failed: HTTP ${status}`),
+    );
+    assert.equal(calls, 1);
+  }
 });

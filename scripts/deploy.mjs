@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { readDeploymentConfig } from "./deployment-config.mjs";
 import { runSmoke } from "./smoke.mjs";
+import { waitForWorker } from "./worker-readiness.mjs";
 
 function run(command, args, env) {
   const result = spawnSync(command, args, { env, stdio: "inherit" });
@@ -14,6 +15,7 @@ const target = process.argv[2];
 let config,
   directory,
   previous,
+  previousUrlEnabled = false,
   deployed = false;
 const report = { target, status: "failed" };
 
@@ -44,7 +46,8 @@ async function currentVersion() {
   }
   return version.id;
 }
-function smoke() {
+async function smoke() {
+  await waitForWorker(config.site);
   return runSmoke({ origin: config.site, mode: "existing", email: config.smokeEmail, password: config.smokePassword });
 }
 function rollback(version) {
@@ -69,7 +72,18 @@ try {
   if (subdomain.subdomain !== config.subdomain)
     throw new Error("Worker URLs do not belong to the selected Cloudflare account");
   previous = await currentVersion();
-  Object.assign(report, { sha, url: config.site, worker: config.worker, previousVersion: previous });
+  if (previous) {
+    const route = await api(`${scriptPath()}/subdomain`);
+    if (typeof route.enabled !== "boolean") throw new Error("Cloudflare returned no Worker URL state");
+    previousUrlEnabled = route.enabled;
+  }
+  Object.assign(report, {
+    sha,
+    url: config.site,
+    worker: config.worker,
+    previousVersion: previous,
+    previousUrlEnabled,
+  });
 
   const buildEnv = { ...process.env, CLOUDFLARE_ENV: target, SITE_URL: config.site, ALLOW_SIGNUP: "false" };
   // No database credentials are required for a server build; runtime receives secrets separately.
@@ -81,7 +95,8 @@ try {
     built.name !== config.worker ||
     built.vars?.ALLOW_SIGNUP !== false ||
     built.images ||
-    built.kv_namespaces?.length
+    built.kv_namespaces?.length ||
+    built.assets?.not_found_handling === "404-page"
   ) {
     throw new Error("Built Worker has an unexpected target, signup policy or unused paid bindings");
   }
@@ -100,12 +115,13 @@ try {
   publish();
   const version = await currentVersion();
   if (!version) throw new Error("Cloudflare did not return a deployed version");
+  report.publishedVersion = version;
   await smoke();
   report.version = version;
   // On the first staging release prove rollback before production: create a second
   // version of the same tested artifact, then restore the known-good first version.
-  if (target === "staging" && !previous) {
-    publish("-rollback-check");
+  if (target === "staging" && !previousUrlEnabled) {
+    publish("-check");
     if ((await currentVersion()) === version) throw new Error("Staging rehearsal did not create a distinct version");
     rollback(version);
     if ((await currentVersion()) !== version) throw new Error("Staging rollback did not restore the verified version");
@@ -121,14 +137,14 @@ try {
   if (deployed) {
     try {
       const active = await currentVersion();
-      if (active && active !== previous) {
-        if (previous) {
+      if (active && (active !== previous || !previousUrlEnabled)) {
+        if (previous && previousUrlEnabled) {
           rollback(previous);
           await smoke();
           report.recovery = "previous version restored and smoke passed";
         } else {
           await api(`${scriptPath()}/subdomain`, { method: "POST", body: { enabled: false, previews_enabled: false } });
-          report.recovery = "first deployment URL disabled; Worker and database preserved";
+          report.recovery = "unverified deployment URL disabled; Worker and database preserved";
         }
       } else {
         report.recovery = "no new active version; previous deployment preserved";
@@ -146,7 +162,7 @@ try {
     if (process.env.GITHUB_STEP_SUMMARY) {
       await appendFile(
         process.env.GITHUB_STEP_SUMMARY,
-        `\nDeployment ${target}: **${report.status}**\n\nURL: ${report.url ?? "not published"}\n\nSHA: ${report.sha ?? "not deployed"}\n\nVersion: ${report.version ?? "not verified"}\n\nRecovery: ${report.recovery ?? "not needed"}\n`,
+        `\nDeployment ${target}: **${report.status}**\n\nURL: ${report.url ?? "not published"}\n\nSHA: ${report.sha ?? "not deployed"}\n\nPublished version: ${report.publishedVersion ?? "not published"}\n\nVerified version: ${report.version ?? "not verified"}\n\nError: ${report.error ?? "none"}\n\nRecovery: ${report.recovery ?? "not needed"}\n`,
       );
     }
   }

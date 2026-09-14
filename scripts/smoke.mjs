@@ -1,4 +1,6 @@
 import { randomUUID } from "node:crypto";
+import { get as httpGet } from "node:http";
+import { get as httpsGet } from "node:https";
 import { pathToFileURL } from "node:url";
 
 const isLoopback = (url) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
@@ -26,6 +28,31 @@ export function readSmokeConfig(env = process.env) {
 export async function runSmoke(config) {
   const { origin, mode, email, password } = config;
   const jar = new Map();
+  // Native HTTP preserves the browser navigation header; fetch replaces it
+  // with its own request mode. This checks Cloudflare's asset routing too.
+  function navigate(path) {
+    return new Promise((resolve, reject) => {
+      const url = new URL(path, origin);
+      const get = url.protocol === "https:" ? httpsGet : httpGet;
+      const request = get(url, { headers: { "Sec-Fetch-Mode": "navigate" } }, (response) => {
+        let body = "";
+        response.setEncoding("utf8");
+        response.on("data", (chunk) => {
+          body += chunk;
+        });
+        response.on("error", reject);
+        response.on("end", () =>
+          resolve({
+            status: response.statusCode,
+            location: response.headers.location ?? "",
+            body,
+          }),
+        );
+      });
+      request.setTimeout(15000, () => request.destroy(new Error("Browser navigation timed out")));
+      request.on("error", reject);
+    });
+  }
   async function request(path, form) {
     const response = await fetch(origin + path, {
       method: form ? "POST" : "GET",
@@ -53,6 +80,12 @@ export async function runSmoke(config) {
   }
   const redirect = (location) => (r) => r.status === 302 && r.location === location;
   const dashboard = (r) => r.status === 200 && r.body.includes("/api/auth/signout");
+  await check(
+    "browser navigation renders GymPlanner",
+    () => navigate("/"),
+    (r) => r.status === 200 && /<title>GymPlanner<\/title>/.test(r.body),
+  );
+  await check("browser navigation protects dashboard", () => navigate("/dashboard"), redirect("/auth/signin"));
   await check(
     "GymPlanner home and configured auth",
     () => request("/"),
