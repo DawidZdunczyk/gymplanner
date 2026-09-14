@@ -1,6 +1,5 @@
 import type { APIRoute } from "astro";
 import { ALLOW_SIGNUP } from "astro:env/server";
-import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
   if (!ALLOW_SIGNUP) {
@@ -10,7 +9,7 @@ export const POST: APIRoute = async (context) => {
   const email = form.get("email") as string;
   const password = form.get("password") as string;
 
-  const supabase = createClient(context.request.headers, context.cookies);
+  const supabase = context.locals.supabase;
   if (!supabase) {
     return context.redirect(`/auth/signup?error=${encodeURIComponent("Supabase is not configured")}`);
   }

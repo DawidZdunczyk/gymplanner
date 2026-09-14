@@ -122,7 +122,11 @@ export async function runSmoke(config) {
     () => request("/api/auth/signin", { email, password: randomUUID() }),
     (r) => r.status === 302 && r.location.startsWith("/auth/signin?error="),
   );
-  await check("correct password accepted", () => request("/api/auth/signin", { email, password }), redirect("/"));
+  await check(
+    "correct password accepted",
+    () => request("/api/auth/signin", { email, password }),
+    redirect("/dashboard"),
+  );
   await check("authenticated dashboard", () => request("/dashboard"), dashboard);
   await check("session survives refresh", () => request("/dashboard"), dashboard);
   await check("signout", () => request("/api/auth/signout", {}), redirect("/"));

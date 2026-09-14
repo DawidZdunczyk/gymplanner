@@ -3,6 +3,9 @@ import { readFile } from "node:fs/promises";
 import { parseEnv } from "node:util";
 import { pathToFileURL } from "node:url";
 import { withAccessFixtures } from "./access-fixtures.mjs";
+import { createServer } from "node:net";
+import { setTimeout as delay } from "node:timers/promises";
+import { runHttpChecks } from "./access-http.mjs";
 import { runDatabaseChecks } from "./access-checks.mjs";
 
 export function validateLocalInfo(info) {
@@ -52,7 +55,63 @@ export async function runLocalAccess() {
     stdio: "inherit",
   });
   if (migration.status !== 0) throw new Error("Local migration failed");
-  await withAccessFixtures(info, runDatabaseChecks);
+  const dbOnly = process.argv.includes("--db-only");
+  if (!dbOnly) {
+    const port = createServer();
+    await new Promise((resolve, reject) => {
+      port.once("error", () => reject(new Error("Port 4321 is occupied; stop the existing app before access checks")));
+      port.listen(4321, "127.0.0.1", resolve);
+    });
+    await new Promise((resolve) => port.close(resolve));
+  }
+  await withAccessFixtures(info, async (fixture) => {
+    await runDatabaseChecks(fixture);
+    if (dbOnly) return;
+    const origin = "http://127.0.0.1:4321";
+    // Only OS/tool essentials enter the child. Admin credentials stay in this process.
+    const env = Object.fromEntries(
+      Object.entries(process.env).filter(([key]) => ["PATH", "HOME", "TMPDIR", "USER", "CI"].includes(key)),
+    );
+    Object.assign(env, {
+      SUPABASE_URL: info.API_URL,
+      SUPABASE_KEY: info.ANON_KEY,
+      ALLOW_SIGNUP: "false",
+      SITE_URL: origin,
+      CLOUDFLARE_INCLUDE_PROCESS_ENV: "true",
+    });
+    let started = false;
+    try {
+      if (spawnSync("npm", ["run", "build"], { env, stdio: "inherit" }).status !== 0)
+        throw new Error("Access preview build failed");
+      if (
+        spawnSync("npm", ["run", "preview", "--", "--background", "--host", "127.0.0.1", "--port", "4321"], {
+          env,
+          stdio: "inherit",
+        }).status !== 0
+      )
+        throw new Error("Access preview failed to start");
+      started = true;
+      let ready = false;
+      for (let attempt = 0; attempt < 60; attempt++) {
+        try {
+          if ((await fetch(origin, { signal: AbortSignal.timeout(1000) })).ok) {
+            ready = true;
+            break;
+          }
+        } catch {
+          /* Wait for workerd. */
+        }
+        await delay(1000);
+      }
+      if (!ready) throw new Error("Access preview not ready");
+      await runHttpChecks(fixture, origin);
+    } finally {
+      if (started) {
+        const stop = spawnSync("npx", ["--no-install", "astro", "preview", "stop"], { env, stdio: "inherit" });
+        if (stop.status !== 0) process.exitCode = 1;
+      }
+    }
+  });
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {

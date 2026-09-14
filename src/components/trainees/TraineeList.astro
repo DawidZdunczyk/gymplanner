@@ -1,0 +1,32 @@
+---
+import type { Profile } from "@/lib/access";
+interface Props {
+  trainees: Profile[];
+}
+const { trainees } = Astro.props;
+---
+
+{trainees.length ? (
+  <ul class="space-y-3">
+    {trainees.map((trainee) => (
+      <li>
+        <a
+          href={`/dashboard/trainees/${trainee.id}`}
+          class="flex items-center justify-between gap-4 rounded-xl border border-slate-700 bg-slate-900 p-5 transition-colors hover:border-lime-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+        >
+          <span class="min-w-0">
+            <span class="block text-lg font-medium break-words">{trainee.display_name}</span>
+            <span class="mt-1 block break-words text-slate-400">{trainee.identification_label}</span>
+          </span>
+          <span aria-hidden="true" class="text-lime-300">
+            →
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+) : (
+  <p class="rounded-xl border border-slate-700 bg-slate-900 p-6 text-slate-300">
+    Nie masz jeszcze przypisanych podopiecznych.
+  </p>
+)}

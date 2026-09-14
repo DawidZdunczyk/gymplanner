@@ -1,20 +1,22 @@
 import type { APIRoute } from "astro";
-import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
-  const email = form.get("email") as string;
-  const password = form.get("password") as string;
-
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent("Supabase is not configured")}`);
+  const failure = () =>
+    context.redirect(
+      `/auth/signin?error=${encodeURIComponent("Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.")}`,
+    );
+  try {
+    const form = await context.request.formData();
+    const email = form.get("email");
+    const password = form.get("password");
+    if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password.trim())
+      return failure();
+    const supabase = context.locals.supabase;
+    if (!supabase) return failure();
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) return failure();
+    return context.redirect("/dashboard");
+  } catch {
+    return failure();
   }
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) {
-    return context.redirect(`/auth/signin?error=${encodeURIComponent(error.message)}`);
-  }
-
-  return context.redirect("/");
 };

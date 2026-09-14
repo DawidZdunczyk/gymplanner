@@ -283,19 +283,19 @@ Lokalnie używać `db push --local`, bez `db reset`; typy generować z lokalnego
 
 #### Automated
 
-- [x] 1.1 Migracja stosuje się na lokalnej bazie; ponowne uruchomienie nie kasuje ani nie duplikuje danych, a ograniczenia modelu odrzucają nieprawidłowe profile i relacje.
-- [x] 1.2 `npm run check:access:db` przechodzi pełną macierz izolacji z rzeczywistymi sesjami obu ról i kontem bez profilu.
-- [x] 1.3 `node --test scripts/access-runner.test.mjs` potwierdza lokalny cel i brak zapisów przy odrzuconej konfiguracji.
-- [x] 1.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`.
+- [x] 1.1 Migracja stosuje się na lokalnej bazie; ponowne uruchomienie nie kasuje ani nie duplikuje danych, a ograniczenia modelu odrzucają nieprawidłowe profile i relacje. — fafbf2a
+- [x] 1.2 `npm run check:access:db` przechodzi pełną macierz izolacji z rzeczywistymi sesjami obu ról i kontem bez profilu. — fafbf2a
+- [x] 1.3 `node --test scripts/access-runner.test.mjs` potwierdza lokalny cel i brak zapisów przy odrzuconej konfiguracji. — fafbf2a
+- [x] 1.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`. — fafbf2a
 
 ### Phase 2: Panel trenera i podopiecznego
 
 #### Automated
 
-- [ ] 2.1 `npm run smoke:access:local` potwierdza panel i kartę trenera, panel podopiecznego z nazwą trenera, puste stany, konto bez profilu oraz jednolite `404` dla obcego i błędnego UUID.
-- [ ] 2.2 Test sesji potwierdza ponowny odczyt z cookies, rzeczywiste odświeżenie sesji, brak dostępu po wylogowaniu i po odebraniu relacji; odpowiedzi spersonalizowane oraz zapisujące cookies mają zakaz współdzielonego cache.
-- [ ] 2.3 `node --experimental-strip-types --test scripts/access-context.test.mjs` odróżnia brak profilu od błędu i sprawdza bezpieczne mapowanie błędów Auth oraz danych. Pomocnik nie wymaga importów runtime Astro w tych testach.
-- [ ] 2.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`, następnie `npm run smoke:local` oraz `npm run check:deployment`.
+- [x] 2.1 `npm run smoke:access:local` potwierdza panel i kartę trenera, panel podopiecznego z nazwą trenera, puste stany, konto bez profilu oraz jednolite `404` dla obcego i błędnego UUID.
+- [x] 2.2 Test sesji potwierdza ponowny odczyt z cookies, rzeczywiste odświeżenie sesji, brak dostępu po wylogowaniu i po odebraniu relacji; odpowiedzi spersonalizowane oraz zapisujące cookies mają zakaz współdzielonego cache.
+- [x] 2.3 `node --experimental-strip-types --test scripts/access-context.test.mjs` odróżnia brak profilu od błędu i sprawdza bezpieczne mapowanie błędów Auth oraz danych. Pomocnik nie wymaga importów runtime Astro w tych testach.
+- [x] 2.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`, następnie `npm run smoke:local` oraz `npm run check:deployment`.
 
 ### Phase 3: Powtarzalne sprawdzenie S-01 i integracja CI
 

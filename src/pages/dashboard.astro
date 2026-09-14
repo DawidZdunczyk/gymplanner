@@ -1,27 +1,77 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-
-const { user } = Astro.locals;
+import TraineeList from "@/components/trainees/TraineeList.astro";
+const access = Astro.locals.access;
+if (access.kind === "unavailable") Astro.response.status = 503;
 ---
 
-<Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
-      </h1>
-      <p class="text-blue-100/80">
-        Welcome, <span class="font-semibold text-white">{user?.email}</span>
-      </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-      <form method="POST" action="/api/auth/signout" class="mt-6">
-        <button
-          type="submit"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+<Layout title="Twój panel · GymPlanner" lang="pl">
+  <main class="min-h-screen bg-slate-950 px-5 py-8 text-slate-100 sm:px-8 sm:py-12">
+    <div class="mx-auto max-w-3xl">
+      <header class="mb-12 flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-6">
+        <a
+          href="/dashboard"
+          class="rounded text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
         >
-          Sign out
-        </button>
-      </form>
+          GymPlanner<span class="text-lime-300">.</span>
+        </a>
+        <form method="POST" action="/api/auth/signout">
+          <button
+            type="submit"
+            class="rounded-lg border border-slate-600 px-4 py-2 text-sm hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+          >
+            Wyloguj się
+          </button>
+        </form>
+      </header>
+      {access.kind === "trainer" || access.kind === "trainee" ? (
+        <>
+          <p class="mb-3 text-sm font-medium text-lime-300">
+            {access.kind === "trainer" ? "Panel trenera" : "Panel podopiecznego"}
+          </p>
+          <h1 class="text-3xl font-semibold break-words sm:text-4xl">{access.profile.display_name}</h1>
+          <p class="mt-2 break-words text-slate-400">{access.profile.identification_label}</p>
+          {access.kind === "trainer" ? (
+            <section class="mt-12" aria-labelledby="trainees-title">
+              <h2 id="trainees-title" class="mb-5 text-xl font-semibold">
+                Twoi podopieczni
+              </h2>
+              <TraineeList trainees={access.trainees} />
+            </section>
+          ) : (
+            <section class="mt-12 rounded-2xl border border-slate-700 bg-slate-900 p-6" aria-labelledby="trainer-title">
+              <h2 id="trainer-title" class="text-xl font-semibold">
+                Twój trener
+              </h2>
+              {access.trainer ? (
+                <>
+                  <p class="mt-4 text-lg break-words">{access.trainer.display_name}</p>
+                  <p class="mt-1 break-words text-slate-400">{access.trainer.identification_label}</p>
+                </>
+              ) : (
+                <p class="mt-4 text-slate-300">Nie masz jeszcze przypisanego trenera.</p>
+              )}
+              <p class="mt-6 border-t border-slate-700 pt-6 text-slate-300">Treningi będą dostępne później.</p>
+            </section>
+          )}
+        </>
+      ) : access.kind === "unavailable" ? (
+        <section>
+          <h1 class="text-3xl font-semibold">Panel jest chwilowo niedostępny</h1>
+          <p class="mt-4 text-slate-300">Nie udało się odczytać danych. Spróbuj ponownie za chwilę.</p>
+          <a
+            href="/dashboard"
+            class="mt-6 inline-block rounded text-lime-300 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            Spróbuj ponownie
+          </a>
+        </section>
+      ) : (
+        <section>
+          <h1 class="text-3xl font-semibold">Konto oczekuje na konfigurację</h1>
+          <p class="mt-4 text-slate-300">Twoje konto jest aktywne. Operator przygotuje Twój profil i dostęp.</p>
+        </section>
+      )}
     </div>
-  </div>
+  </main>
 </Layout>
