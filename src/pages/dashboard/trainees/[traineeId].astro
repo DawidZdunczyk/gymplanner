@@ -22,6 +22,12 @@ Astro.response.status = unavailable ? 503 : trainee ? 200 : 404;
             <p class="mb-3 text-sm text-lime-300">Podopieczny</p>
             <h1 class="text-3xl font-semibold break-words">{trainee.display_name}</h1>
             <p class="mt-3 break-words text-slate-400">{trainee.identification_label}</p>
+            <a
+              href={`/dashboard/training?trainee=${trainee.id}`}
+              class="mt-6 inline-flex min-h-11 items-center justify-center rounded-lg bg-lime-300 px-5 py-3 font-medium text-slate-950 hover:bg-lime-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+            >
+              Plany i wyniki podopiecznego
+            </a>
           </>
         ) : unavailable ? (
           <>

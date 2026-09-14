@@ -43,21 +43,35 @@ export async function runDatabaseChecks({ accounts: a, admin, info }) {
   const before = await snapshot();
   for (const account of Object.values(a)) {
     for (const table of ["profiles", "trainer_assignments"]) {
-      const row =
-        table === "profiles"
-          ? { ...a.unassigned.profile, role: "trainer" }
-          : { trainee_id: a.unassigned.id, trainer_id: a.trainerB.id };
-      const pk = table === "profiles" ? "id" : "trainee_id";
+      const isProfile = table === "profiles";
+      const pk = isProfile ? "id" : "trainee_id";
+      const target = isProfile ? a.unassigned.id : a.traineeA.id;
       for (const operation of ["insert", "upsert", "update", "delete"]) {
+        const row = isProfile
+          ? operation === "insert"
+            ? {
+                id: a.unconfigured.id,
+                role: "trainer",
+                display_name: "Unauthorized",
+                identification_label: `unauthorized-${a.unconfigured.id}`,
+              }
+            : operation === "update"
+              ? { display_name: "Unauthorized" }
+              : { ...a.unassigned.profile, role: "trainer" }
+          : operation === "insert"
+            ? { trainee_id: a.unassigned.id, trainer_id: a.trainerB.id }
+            : operation === "update"
+              ? { trainer_id: a.trainerB.id }
+              : { trainee_id: a.traineeA.id, trainer_id: a.trainerB.id };
         let query = account.client.from(table);
         query =
           operation === "delete"
-            ? query.delete().eq(pk, a.traineeA.id)
+            ? query.delete().eq(pk, target)
             : operation === "update"
-              ? query.update(row).eq(pk, a.traineeA.id)
+              ? query.update(row).eq(pk, target)
               : query[operation](row);
         const result = await query;
-        assert.ok(result.error, `Reject ${operation} ${table}`);
+        assert.equal(result.error?.code, "42501", `Permission denial for ${operation} ${table}`);
       }
     }
   }

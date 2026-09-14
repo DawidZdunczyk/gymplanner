@@ -292,18 +292,18 @@ Lokalnie używać `db push --local`, bez `db reset`; typy generować z lokalnego
 
 #### Automated
 
-- [x] 2.1 `npm run smoke:access:local` potwierdza panel i kartę trenera, panel podopiecznego z nazwą trenera, puste stany, konto bez profilu oraz jednolite `404` dla obcego i błędnego UUID.
-- [x] 2.2 Test sesji potwierdza ponowny odczyt z cookies, rzeczywiste odświeżenie sesji, brak dostępu po wylogowaniu i po odebraniu relacji; odpowiedzi spersonalizowane oraz zapisujące cookies mają zakaz współdzielonego cache.
-- [x] 2.3 `node --experimental-strip-types --test scripts/access-context.test.mjs` odróżnia brak profilu od błędu i sprawdza bezpieczne mapowanie błędów Auth oraz danych. Pomocnik nie wymaga importów runtime Astro w tych testach.
-- [x] 2.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`, następnie `npm run smoke:local` oraz `npm run check:deployment`.
+- [x] 2.1 `npm run smoke:access:local` potwierdza panel i kartę trenera, panel podopiecznego z nazwą trenera, puste stany, konto bez profilu oraz jednolite `404` dla obcego i błędnego UUID. — b434ca6
+- [x] 2.2 Test sesji potwierdza ponowny odczyt z cookies, rzeczywiste odświeżenie sesji, brak dostępu po wylogowaniu i po odebraniu relacji; odpowiedzi spersonalizowane oraz zapisujące cookies mają zakaz współdzielonego cache. — b434ca6
+- [x] 2.3 `node --experimental-strip-types --test scripts/access-context.test.mjs` odróżnia brak profilu od błędu i sprawdza bezpieczne mapowanie błędów Auth oraz danych. Pomocnik nie wymaga importów runtime Astro w tych testach. — b434ca6
+- [x] 2.4 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`, następnie `npm run smoke:local` oraz `npm run check:deployment`. — b434ca6
 
 ### Phase 3: Powtarzalne sprawdzenie S-01 i integracja CI
 
 #### Automated
 
-- [ ] 3.1 `npm run check:deployment` potwierdza poprawne kopiowanie migracji i zachowanie istniejących zabezpieczeń przygotowania CI oraz wdrożenia.
-- [ ] 3.2 Cały przebieg `smoke:local` → `smoke:access:local` przechodzi na świeżym, izolowanym projekcie Supabase; nie używa hostowanej bazy, nie wymaga profilu dla podstawowego konta smoke i sprząta własne fixture oraz preview.
-- [ ] 3.3 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`; `git diff --check` nie zgłasza błędów.
+- [x] 3.1 `npm run check:deployment` potwierdza poprawne kopiowanie migracji i zachowanie istniejących zabezpieczeń przygotowania CI oraz wdrożenia.
+- [x] 3.2 Cały przebieg `smoke:local` → `smoke:access:local` przechodzi na świeżym, izolowanym projekcie Supabase; nie używa hostowanej bazy, nie wymaga profilu dla podstawowego konta smoke i sprząta własne fixture oraz preview.
+- [x] 3.3 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`; `git diff --check` nie zgłasza błędów.
 
 #### Manual
 

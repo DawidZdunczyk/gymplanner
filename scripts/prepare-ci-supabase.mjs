@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { appendFile, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { appendFile, copyFile, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -34,8 +34,8 @@ async function freePorts(count) {
   throw new Error("No free port block available for the isolated Supabase smoke test");
 }
 
-export async function prepareCiSupabase() {
-  const source = await readFile("supabase/config.toml", "utf8");
+export async function prepareCiSupabase(sourceRoot = ".") {
+  const source = await readFile(join(sourceRoot, "supabase/config.toml"), "utf8");
   const portPattern = /^(\s*(?:port|shadow_port|inspector_port)\s*=\s*)\d+/gm;
   const count = [...source.matchAll(portPattern)].length;
   if (!count || !/^project_id\s*=\s*"[^"]+"/m.test(source)) throw new Error("Unexpected Supabase config format");
@@ -44,10 +44,19 @@ export async function prepareCiSupabase() {
   let index = 0;
   const config = source
     .replace(/^project_id\s*=\s*"[^"]+"/m, `project_id = "${project}"`)
+    .replace(/(\[db\.seed\][\s\S]*?\benabled\s*=\s*)true/, "$1false")
     .replace(portPattern, (_, prefix) => `${prefix}${ports[index++]}`);
   const workdir = await mkdtemp(join(tmpdir(), "gymplanner-ci-"));
   await mkdir(join(workdir, "supabase"));
   await writeFile(join(workdir, "supabase/config.toml"), config);
+  const migrations = join(sourceRoot, "supabase/migrations");
+  await mkdir(join(workdir, "supabase/migrations"));
+  for (const entry of await readdir(migrations, { withFileTypes: true })) {
+    // Never copy admin scripts, env files, linked projects or symlink targets.
+    if (entry.isFile() && /^\d{14}_[a-zA-Z0-9_-]+\.sql$/.test(entry.name)) {
+      await copyFile(join(migrations, entry.name), join(workdir, "supabase/migrations", entry.name));
+    }
+  }
   return { workdir, project, ports };
 }
 

@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
-import { readFile, rm } from "node:fs/promises";
+import { readFile, readdir, rm, mkdir, mkdtemp, writeFile, symlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { readDeploymentConfig, validatePublicKey } from "./deployment-config.mjs";
@@ -96,6 +97,31 @@ test("CI skips occupied ports and isolates project identity without changing dev
   assert.ok(config.includes(`project_id = "${first.project}"`));
   assert.doesNotMatch(config, /^port = 54322$/m);
   assert.equal(await readFile("supabase/config.toml", "utf8"), original);
+});
+
+test("CI copies only regular SQL migrations and disables unused seed", async (t) => {
+  const root = await mkdtemp(join(tmpdir(), "gymplanner-ci-source-"));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  await mkdir(join(root, "supabase/migrations"), { recursive: true });
+  await mkdir(join(root, "supabase/admin"));
+  const source = await readFile("supabase/config.toml", "utf8");
+  await writeFile(join(root, "supabase/config.toml"), source);
+  const migration = "20260914180000_assigned_trainee_access.sql";
+  const sql = await readFile(join("supabase/migrations", migration), "utf8");
+  await writeFile(join(root, "supabase/migrations", migration), sql);
+  await writeFile(join(root, "supabase/migrations/.env"), "DO_NOT_COPY=test");
+  await writeFile(join(root, "supabase/admin/operator.sql"), "DO_NOT_COPY");
+  await symlink(join(root, "supabase/admin/operator.sql"), join(root, "supabase/migrations/20260914180001_link.sql"));
+  const prepared = await prepareCiSupabase(root);
+  t.after(() => rm(prepared.workdir, { recursive: true, force: true }));
+  assert.deepEqual((await readdir(join(prepared.workdir, "supabase"))).sort(), ["config.toml", "migrations"]);
+  assert.deepEqual(await readdir(join(prepared.workdir, "supabase/migrations")), [migration]);
+  assert.equal(await readFile(join(prepared.workdir, "supabase/migrations", migration), "utf8"), sql);
+  assert.match(
+    await readFile(join(prepared.workdir, "supabase/config.toml"), "utf8"),
+    /\[db\.seed\][\s\S]*?enabled = false/,
+  );
+  assert.equal(await readFile(join(root, "supabase/config.toml"), "utf8"), source);
 });
 
 test("readiness waits through network and edge errors using anonymous GET only", async () => {

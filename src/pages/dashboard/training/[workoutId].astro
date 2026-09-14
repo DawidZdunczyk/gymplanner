@@ -1,0 +1,85 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import WorkoutExecution from "@/components/training/WorkoutExecution";
+import TrainerResults from "@/components/training/TrainerResults";
+import { getTrainingOverview, getWorkout } from "@/lib/training";
+import type { TrainingComment, TrainingPlan, TrainingWorkout } from "@/lib/training-contract";
+
+const access = Astro.locals.access;
+const id = Astro.params.workoutId;
+let unavailable = access.kind === "unavailable";
+let workout: TrainingWorkout | null = null;
+let comments: TrainingComment[] = [];
+let plan: TrainingPlan | null = null;
+if (
+  !unavailable &&
+  (access.kind === "trainer" || access.kind === "trainee") &&
+  Astro.locals.supabase &&
+  id &&
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+) {
+  try {
+    const detail = await getWorkout(Astro.locals.supabase, id);
+    if (detail) {
+      const overview = await getTrainingOverview(Astro.locals.supabase);
+      plan = overview.plans.find((item) => item.id === detail.workout.plan_id) ?? null;
+      if (plan) {
+        workout = detail.workout;
+        comments = detail.comments;
+      }
+    }
+  } catch {
+    unavailable = true;
+    workout = null;
+  }
+}
+const trainee =
+  access.kind === "trainee"
+    ? access.profile
+    : access.kind === "trainer"
+      ? access.trainees.find((item) => item.id === workout?.trainee_id)
+      : null;
+Astro.response.status = unavailable ? 503 : workout ? 200 : 404;
+Astro.response.headers.set("Cache-Control", "private, no-store");
+---
+
+<Layout title="Trening · GymPlanner" lang="pl">
+  <main class="min-h-screen bg-slate-950 px-4 py-8 text-slate-100 sm:px-6">
+    <div class="mx-auto max-w-4xl">
+      <a href="/dashboard/training" class="text-lime-300 underline underline-offset-4">
+        ← Wróć do treningów
+      </a>
+      {workout && plan ? (
+        <>
+          <header class="my-8">
+            <p class="text-sm text-lime-300">{plan.title}</p>
+            <h1 class="mt-2 text-3xl font-semibold break-words">{workout.unit_label}</h1>
+            <p class="mt-3 text-slate-300">
+              {trainee?.display_name} · {trainee?.identification_label}
+            </p>
+            <p class="mt-1 text-sm text-slate-400">
+              Termin: {workout.scheduled_for} · Plan ważny: {plan.valid_from} – {plan.valid_until}
+            </p>
+            <p class="mt-1 text-sm text-slate-400">Tydzień od: {workout.week_start}</p>
+          </header>
+          {access.kind === "trainer" ? (
+            <TrainerResults workout={workout} comments={comments} client:load />
+          ) : (
+            <WorkoutExecution workout={workout} comments={comments} plan={plan} client:load />
+          )}
+        </>
+      ) : (
+        <section class="mt-8 rounded-2xl border border-slate-700 bg-slate-900 p-6">
+          <h1 class="text-2xl font-semibold">
+            {unavailable ? "Trening jest chwilowo niedostępny" : "Nie znaleziono treningu"}
+          </h1>
+          <p class="mt-3 text-slate-300">
+            {unavailable
+              ? "Nie udało się odczytać danych. Spróbuj ponownie za chwilę."
+              : "Wróć do swojej listy treningów."}
+          </p>
+        </section>
+      )}
+    </div>
+  </main>
+</Layout>

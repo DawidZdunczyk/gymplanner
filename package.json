@@ -14,9 +14,14 @@
     "smoke:local": "node scripts/local-smoke.mjs",
     "smoke:access:local": "node scripts/local-access.mjs",
     "check:access:db": "node scripts/local-access.mjs --db-only",
+    "check:access:ci": "node scripts/isolated-access.mjs",
+    "check:ci:local": "node scripts/isolated-access.mjs --training",
     "check:deployment": "node --test scripts/deployment.test.mjs",
     "deploy:staging": "node scripts/deploy.mjs staging",
-    "deploy:production": "node scripts/deploy.mjs production"
+    "deploy:production": "node scripts/deploy.mjs production",
+    "test:e2e": "playwright test",
+    "test:e2e:local": "node scripts/local-e2e.mjs",
+    "check:training:db": "node scripts/local-training.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
@@ -43,6 +48,7 @@
   "devDependencies": {
     "@eslint/compat": "^2.1.1",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-astro": "^3.1.0",

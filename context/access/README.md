@@ -32,3 +32,14 @@ Stary trener traci dostęp przy następnym odczycie, również z istniejącą se
 `npm run check:access:db` sprawdza prawdziwe lokalne sesje, izolację danych i ograniczenia bazy. Wymaga Node 22.22.3, Dockera oraz uruchomionego lokalnego Supabase. Tworzy losowe konta wyłącznie lokalnie, po czym usuwa tylko swoje fixture. Nie wypisuje kluczy ani haseł. Kolidujące pliki środowiska powodują odmowę przed zapisem.
 
 Ta zmiana nie publikuje migracji na hostowanych bazach. Przed udostępnieniem potrzebny jest osobno zatwierdzony plan migracji staging i produkcji, przygotowania kont oraz publikacji aplikacji.
+
+## Weryfikacja S-01
+
+- `npm run smoke:local` sprawdza istniejący przepływ Auth w obu trybach lokalnych. Konto bez profilu poprawnie widzi „Konto oczekuje na konfigurację”; ten test nie dowodzi uprawnień trenera.
+- `npm run smoke:access:local` sprawdza RLS oraz panele obu ról, kartę, puste stany, rzeczywistą rotację refresh tokena, odwołanie dostępu i nagłówki cache. Runner sam buduje i uruchamia tymczasowy preview, po czym go zatrzymuje. Port 4321 musi być wolny.
+- `node --test scripts/access-runner.test.mjs` oraz `node --experimental-strip-types --test scripts/access-context.test.mjs` sprawdzają zabezpieczenia runnera i rozróżnienie awarii od stanów pustych.
+- `npm run check:access:ci` wykonuje oba smoke kolejno na świeżym, izolowanym projekcie lokalnym, kopiując konfigurację i wyłącznie migracje SQL. Zatrzymuje tylko swój projekt. W CI te same kroki są jawnie zapisane w workflow.
+
+Nowe widoki są pod `/dashboard` i `/dashboard/trainees/<UUID>`. Nie ma funkcji treningowych. Brak przypisania podopiecznego jest poprawnym stanem; awaria Auth lub danych daje 503 z komunikatem o niedostępności. Polityka dostępu nie korzysta z edytowalnych metadanych Auth.
+
+Końcowa kontrola ręczna z planu: trener rozróżnia dwie osoby o tej samej nazwie i otwiera kartę; podopieczny rozpoznaje swojego trenera; brak profilu i relacji dają właściwe komunikaty. Sprawdzić telefon, klawiaturę, wylogowanie oraz lokalną zmianę przypisania i awarię backendu. Automatyczne testy HTTP nie zastępują potwierdzenia tej kontroli przez użytkownika.

@@ -31,6 +31,12 @@ if (access.kind === "unavailable") Astro.response.status = 503;
           </p>
           <h1 class="text-3xl font-semibold break-words sm:text-4xl">{access.profile.display_name}</h1>
           <p class="mt-2 break-words text-slate-400">{access.profile.identification_label}</p>
+          <a
+            href="/dashboard/training"
+            class="mt-7 inline-flex min-h-11 items-center rounded-lg bg-lime-300 px-5 py-3 font-semibold text-slate-950 hover:bg-lime-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+          >
+            {access.kind === "trainer" ? "Plany i treningi" : "Twoje treningi"} →
+          </a>
           {access.kind === "trainer" ? (
             <section class="mt-12" aria-labelledby="trainees-title">
               <h2 id="trainees-title" class="mb-5 text-xl font-semibold">
@@ -51,7 +57,6 @@ if (access.kind === "unavailable") Astro.response.status = 503;
               ) : (
                 <p class="mt-4 text-slate-300">Nie masz jeszcze przypisanego trenera.</p>
               )}
-              <p class="mt-6 border-t border-slate-700 pt-6 text-slate-300">Treningi będą dostępne później.</p>
             </section>
           )}
         </>

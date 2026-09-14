@@ -40,17 +40,19 @@ Użytkownik wybrał cel `market-feedback` i brak blokady planowania (`none`). Ob
 
 ## At a glance
 
-| ID   | Change ID                    | Outcome                                             | Prerequisites | PRD refs                                             | Status   |
-| ---- | ---------------------------- | --------------------------------------------------- | ------------- | ---------------------------------------------------- | -------- |
+Aktualizacja 2026-09-14: na polecenie użytkownika pełny zakres S-02–S-09 zrealizowano wspólnie w [training-mvp-cycle](../changes/training-mvp-cycle/plan.md). Zachowano identyfikatory wycinków, a wspólna zmiana jest ich źródłem implementacji i [dowodów](../changes/training-mvp-cycle/verification.md). Status `done` poniżej oznacza funkcjonalność zweryfikowaną lokalnie. S-01 nadal oczekuje trzech ręcznych potwierdzeń; kamień milowy pozostaje otwarty. Migracje zdalne, eksport/odtworzenie danych i próba z rzeczywistymi użytkownikami pozostają przed udostępnieniem.
+
+| ID   | Change ID                    | Outcome                                             | Prerequisites | PRD refs                                             | Status      |
+| ---- | ---------------------------- | --------------------------------------------------- | ------------- | ---------------------------------------------------- | ----------- |
 | S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | —             | FR-001, FR-002, US-01                                | in-progress |
-| S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | S-01          | FR-002, FR-003, FR-005, FR-012, FR-015, US-01, US-04 | proposed |
-| S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | S-02          | FR-005, FR-006, FR-009, FR-012, US-01, US-04         | proposed |
-| S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | S-03          | FR-007, FR-009, FR-015, US-01, US-04                 | proposed |
-| S-05 | compare-training-results     | Trener porównuje plan z wykonaniem                  | S-04          | FR-002, FR-010, US-01                                | proposed |
-| S-06 | revise-future-training-week  | Trener zmienia przyszłe treningi                    | S-03          | FR-003, FR-004, FR-012, US-01                        | proposed |
-| S-07 | train-superset-rounds        | Trener zleca superserię, podopieczny wykonuje rundy | S-04          | FR-003, FR-006, FR-009, FR-014, US-03                | proposed |
-| S-08 | training-comment-visibility  | Podopieczny wybiera widoczność komentarza           | S-04          | FR-008, US-01                                        | proposed |
-| S-09 | correct-completed-training   | Podopieczny koryguje zakończony trening             | S-05, S-07    | FR-010, FR-012, FR-013, US-02                        | proposed |
+| S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | S-01          | FR-002, FR-003, FR-005, FR-012, FR-015, US-01, US-04 | done        |
+| S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | S-02          | FR-005, FR-006, FR-009, FR-012, US-01, US-04         | done        |
+| S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | S-03          | FR-007, FR-009, FR-015, US-01, US-04                 | done        |
+| S-05 | compare-training-results     | Trener porównuje plan z wykonaniem                  | S-04          | FR-002, FR-010, US-01                                | done        |
+| S-06 | revise-future-training-week  | Trener zmienia przyszłe treningi                    | S-03          | FR-003, FR-004, FR-012, US-01                        | done        |
+| S-07 | train-superset-rounds        | Trener zleca superserię, podopieczny wykonuje rundy | S-04          | FR-003, FR-006, FR-009, FR-014, US-03                | done        |
+| S-08 | training-comment-visibility  | Podopieczny wybiera widoczność komentarza           | S-04          | FR-008, US-01                                        | done        |
+| S-09 | correct-completed-training   | Podopieczny koryguje zakończony trening             | S-05, S-07    | FR-010, FR-012, FR-013, US-02                        | done        |
 
 ## Streams
 
@@ -65,7 +67,7 @@ Pomoc nawigacyjna; wymagania wstępne w tabeli i wpisach pozostają źródłem k
 
 ## Baseline
 
-Stan na 2026-09-14, automatycznie zbadany i potwierdzony przez użytkownika. Wybory technologii przyjęto zgodnie z `context/foundation/tech-stack.md`; poniższe dowody opisują realizację. Brak `context/foundation/lessons.md`.
+Historyczna baza przed implementacją, zbadana 2026-09-14 i potwierdzona przez użytkownika. Aktualny stan opisują tabela powyżej i raport training-mvp-cycle. Wybory technologii przyjęto zgodnie z `context/foundation/tech-stack.md`; poniższe dowody opisują realizację. Brak `context/foundation/lessons.md`.
 
 - **Frontend: obecny szkielet** — Astro, React i routing według stosu; dashboard zawiera powitanie i wylogowanie, bez ekranów treningowych (`src/pages/dashboard.astro:7`).
 - **Backend / API: częściowy** — istnieją endpointy logowania i wylogowania; brak API treningów (`src/pages/api/auth/signin.ts:13`, `src/pages/api/auth/signout.ts:7`).
@@ -109,7 +111,7 @@ Wykorzystać istniejące logowanie. W tym przepływie wprowadzić minimalne role
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Rozróżnienie tygodnia i wystąpienia jednostki musi być poprawne przed zapisem wyników, aby podopieczny nie ćwiczył według niewłaściwej rozpiski.
-- **Status:** proposed
+- **Status:** done
 
 Każde wystąpienie powtarzanej jednostki ma niezależne parametry ćwiczeń: powtórzenia, serie, ciężar, RIR/RPE, uwagi lub czas. Serie i powtórzenia obsługują liczbę, zakres i „Bez limitu”; brak liczby serii poza superserią oznacza jedno wykonanie. Trener rozdziela rozgrzewkę i część właściwą. Zapis i odczyt po ponownym logowaniu muszą zachować plan. Egzekwowanie ważności przy rozpoczęciu należy do S-03; organizacja superserii do S-07.
 
@@ -123,7 +125,7 @@ Każde wystąpienie powtarzanej jednostki ma niezależne parametry ćwiczeń: po
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Trwałość zapisu jest głównym warunkiem zaufania podopiecznego; sprawdzamy ją na pierwszym użytecznym przepływie wyników.
-- **Status:** proposed
+- **Status:** done
 
 Wymagane wyniki wynikają z konfiguracji ćwiczenia: czas albo powtórzenia i ciężar, gdy jest przewidziany. Liczba, zakres, „Bez limitu” i brak liczby serii zachowują odrębne znaczenia. Rozpoczęcie utrwala rozpiskę; po wygaśnięciu planu można kontynuować rozpoczęty trening, lecz nie rozpoczynać nowego. Rzeczywiste wyniki mogą odbiegać od celu. Błąd zapisu jest widoczny i nigdy nie daje fałszywego potwierdzenia. Weryfikacja obejmuje trwałość, izolację oraz odtworzenie potwierdzonych danych treningowych w odizolowanym środowisku przed rzeczywistymi danymi.
 
@@ -137,7 +139,7 @@ Wymagane wyniki wynikają z konfiguracji ćwiczenia: czas albo powtórzenia i ci
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Rozliczanie celu jako sztywnego obowiązku zablokowałoby prawdziwy trening; ten wycinek weryfikuje główną potrzebę przed dalszym rozszerzaniem produktu.
-- **Status:** proposed
+- **Status:** done
 
 Rozgrzewka nie wymaga wyników ani ocen ćwiczeń. Niepominięte ćwiczenia części właściwej oraz cały trening wymagają ocen 1–10; ćwiczenie pominięte w całości nie wymaga oceny. Przy celu 3–5 serii wystarczają trzy wykonane i wypełnione serie; wyniki poniżej lub powyżej zakresu też są dopuszczalne i widoczne. Brak obowiązkowych danych blokuje zakończenie z czytelnym wskazaniem braków. Rozpiska pozostaje zachowana. Test przepływu obejmuje teraz utworzenie i przypisanie planu przez trenera oraz zapis i zakończenie przez podopiecznego.
 
@@ -151,7 +153,7 @@ Rozgrzewka nie wymaga wyników ani ocen ćwiczeń. Niepominięte ćwiczenia czę
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Dopiero odczyt przez trenera zamyka podstawowy przepływ obu ról i pozwala sprawdzić, czy arkusz przestał być potrzebny.
-- **Status:** proposed
+- **Status:** done
 
 Widok jednoznacznie identyfikuje podopiecznego i wykonanie treningu. Porównanie korzysta z rozpiski zachowanej przy rozpoczęciu. Automatyczny test E2E, czyli test pełnego działania aplikacji przez obie role, potwierdza: trener tworzy i przypisuje trening → podopieczny zapisuje i kończy → trener odczytuje wyniki. Prezentację zamienników i oznaczenie korekty uzupełnia S-09.
 
@@ -165,7 +167,7 @@ Widok jednoznacznie identyfikuje podopiecznego i wykonanie treningu. Porównanie
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Edycję wprowadzamy po utrwalaniu rozpoczętej rozpiski, aby nie nadpisać planu, według którego podopieczny faktycznie ćwiczy.
-- **Status:** proposed
+- **Status:** done
 
 Zmiana dotyczy tylko wskazanego tygodnia i nierozpoczętych treningów. Inne tygodnie, odrębne wystąpienia jednostki oraz historia pozostają nienaruszone. Usunięcie zaplanowanego treningu nie usuwa rozpoczętego wykonania ani historii. Weryfikacja obejmuje także sytuację, gdy podopieczny rozpoczyna trening podczas edycji trenera.
 
@@ -179,7 +181,7 @@ Zmiana dotyczy tylko wskazanego tygodnia i nierozpoczętych treningów. Inne tyg
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Rundy mogą błędnie pomnożyć liczbę wymaganych wykonań; rozszerzamy wcześniej sprawdzony przepływ zakończenia zamiast projektować osobny mechanizm.
-- **Status:** proposed
+- **Status:** done
 
 Każde ćwiczenie ma własne parametry, także w grupie mieszanej, np. powtórzenia i czas. Jedna runda daje jedną serię każdego ćwiczenia i nie mnoży dodatkowej liczby serii. Przerwy między ćwiczeniami mogą być czasem, dystansem lub tekstem; przerwa między rundami obowiązuje po całej grupie. Funkcja obejmuje zapis, odczyt i poprawne zakończenie treningu z grupą, korzystając z już dostępnych ocen i wyników.
 
@@ -193,7 +195,7 @@ Każde ćwiczenie ma własne parametry, także w grupie mieszanej, np. powtórze
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Słowo „publiczny” nie może oznaczać dostępu dla innych osób; osobny wycinek pozwala zweryfikować tę granicę prywatności.
-- **Status:** proposed
+- **Status:** done
 
 Domyślna widoczność to publiczny: wyłącznie autor i jego przypisany trener. Prywatny komentarz widzi tylko autor, także po odświeżeniu i ponownym logowaniu. Wybór widoczności jest egzekwowany przy dostępie do treści; brak komentarza nigdy nie blokuje zakończenia treningu.
 
@@ -207,27 +209,16 @@ Domyślna widoczność to publiczny: wyłącznie autor i jego przypisany trener.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Korekta może zatrzeć pierwotną rozpiskę lub stworzyć mylące porównanie różnych ćwiczeń, dlatego korzysta z gotowego widoku wyników i rozliczania rund.
-- **Status:** proposed
+- **Status:** done
 
 Zamiennik zawiera nazwę, liczbę serii, powtórzenia, trudność oraz RIR lub RPE podopiecznego. Oryginalny plan i jego RIR/RPE trenera pozostają zachowane. Korekta nie zmienia planu ani innych wykonań; jest dostępna również po wygaśnięciu planu. Różnice liczbowe dotyczą tylko tego samego ćwiczenia i parametru. Weryfikacja obejmuje także wykonania z superserią, bez ponownego mnożenia serii przez rundy.
 
 ## Backlog Handoff
 
-| ID   | Change ID                    | Sugerowany tytuł zadania                            | Gotowe do `/10x-plan` | Uwagi                                               |
-| ---- | ---------------------------- | --------------------------------------------------- | --------------------- | --------------------------------------------------- |
-| S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | yes                   | Następny ruch: `/10x-plan assigned-trainee-access`. |
-| S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | no                    | Po ukończeniu S-01.                                 |
-| S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | no                    | Po ukończeniu S-02.                                 |
-| S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | no                    | Po ukończeniu S-03.                                 |
-| S-05 | compare-training-results     | Trener porównuje plan z wykonaniem                  | no                    | Po ukończeniu S-04.                                 |
-| S-06 | revise-future-training-week  | Trener zmienia przyszłe treningi                    | no                    | Po ukończeniu S-03.                                 |
-| S-07 | train-superset-rounds        | Trener zleca superserię, podopieczny wykonuje rundy | no                    | Po ukończeniu S-04.                                 |
-| S-08 | training-comment-visibility  | Podopieczny wybiera widoczność komentarza           | no                    | Po ukończeniu S-04.                                 |
-| S-09 | correct-completed-training   | Podopieczny koryguje zakończony trening             | no                    | Po ukończeniu S-05, S-07.                           |
-
-`ready` oznacza gotowość do planowania, a nie zgodę na publikację. Wycinki `proposed` czekają na wskazane wymagania wstępne; nie mają obecnie blokujących niewiadomych. Pola `Parallel with` oznaczają brak zależności przechodniej między elementami, a nie możliwość rozpoczęcia ich wszystkich od razu.
-
-Skill `/10x-plan` jest zainstalowany w tym repozytorium. Powyższe polecenia stanowią przekazanie do dalszego etapu; ta mapa nie tworzy folderów zmian ani zadań w zewnętrznym systemie.
+- S-01: kod i testy automatyczne gotowe; potwierdzić ręcznie punkty 3.4–3.6 w [planie](../changes/assigned-trainee-access/plan.md). Nie uruchamiać ponownie planowania tego samego zakresu.
+- S-02–S-09: wspólna implementacja `training-mvp-cycle`, testy DB oraz dwa scenariusze E2E przeszły na świeżej bazie. [Mapa wymagań](../changes/training-mvp-cycle/requirements.md) wskazuje zakres każdej warstwy weryfikacji.
+- Przed udostępnieniem: osobny zatwierdzony plan migracji ról i treningów, przygotowane konta, eksport i próba odtworzenia, testy zdalne, logi i rollback. Zatwierdzenie startera nie obejmuje migracji danych domenowych.
+- Następna decyzja produktowa po udostępnieniu: sprawdzić North Star u rzeczywistych podopiecznych i trenerów. Opcjonalne AI pozostaje w Parked.
 
 ## Open Roadmap Questions
 
@@ -246,3 +237,5 @@ Właściciel: użytkownik. Blok: nie — pytanie dotyczy walidacji produktu, nie
 ## Milestone History
 
 ## Done
+
+2026-09-14: lokalna implementacja S-02–S-09 w `training-mvp-cycle`; pełny izolowany przebieg Auth → dostęp → treningi → E2E PASS. Nie archiwizowano zmian i nie zamknięto M-1 z powodu oczekującej akceptacji S-01.

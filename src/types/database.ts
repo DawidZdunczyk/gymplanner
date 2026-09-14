@@ -3,6 +3,31 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
       profiles: {
@@ -62,12 +87,167 @@ export type Database = {
           },
         ];
       };
+      training_comments: {
+        Row: {
+          author_id: string;
+          body: string;
+          id: string;
+          updated_at: string;
+          visibility: string;
+          workout_id: string;
+        };
+        Insert: {
+          author_id: string;
+          body: string;
+          id?: string;
+          updated_at?: string;
+          visibility?: string;
+          workout_id: string;
+        };
+        Update: {
+          author_id?: string;
+          body?: string;
+          id?: string;
+          updated_at?: string;
+          visibility?: string;
+          workout_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "training_comments_author_id_fkey";
+            columns: ["author_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "training_comments_workout_id_fkey";
+            columns: ["workout_id"];
+            isOneToOne: false;
+            referencedRelation: "training_workouts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      training_plans: {
+        Row: {
+          created_at: string;
+          id: string;
+          title: string;
+          trainee_id: string;
+          trainer_id: string;
+          valid_from: string;
+          valid_until: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          title: string;
+          trainee_id: string;
+          trainer_id: string;
+          valid_from: string;
+          valid_until: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          title?: string;
+          trainee_id?: string;
+          trainer_id?: string;
+          valid_from?: string;
+          valid_until?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "training_plans_trainee_id_fkey";
+            columns: ["trainee_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "training_plans_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      training_workouts: {
+        Row: {
+          completed_at: string | null;
+          corrected_at: string | null;
+          created_at: string;
+          id: string;
+          plan_id: string;
+          prescription: Json;
+          results: Json | null;
+          scheduled_for: string;
+          snapshot: Json | null;
+          started_at: string | null;
+          status: string;
+          trainee_id: string;
+          trainer_id: string;
+          unit_label: string;
+          version: number;
+          week_start: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          corrected_at?: string | null;
+          created_at?: string;
+          id?: string;
+          plan_id: string;
+          prescription: Json;
+          results?: Json | null;
+          scheduled_for: string;
+          snapshot?: Json | null;
+          started_at?: string | null;
+          status?: string;
+          trainee_id: string;
+          trainer_id: string;
+          unit_label: string;
+          version?: number;
+          week_start: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          corrected_at?: string | null;
+          created_at?: string;
+          id?: string;
+          plan_id?: string;
+          prescription?: Json;
+          results?: Json | null;
+          scheduled_for?: string;
+          snapshot?: Json | null;
+          started_at?: string | null;
+          status?: string;
+          trainee_id?: string;
+          trainer_id?: string;
+          unit_label?: string;
+          version?: number;
+          week_start?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "training_workouts_plan_id_trainer_id_trainee_id_fkey";
+            columns: ["plan_id", "trainer_id", "trainee_id"];
+            isOneToOne: false;
+            referencedRelation: "training_plans";
+            referencedColumns: ["id", "trainer_id", "trainee_id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      training_mutate: {
+        Args: { p_action: string; p_payload: Json };
+        Returns: Json;
+      };
     };
     Enums: {
       [_ in never]: never;
@@ -186,6 +366,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

@@ -1,0 +1,157 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import TrainingManager from "@/components/training/TrainingManager";
+import { getTrainingOverview } from "@/lib/training";
+import type { TrainingPlan, TrainingWorkout } from "@/lib/training-contract";
+
+const access = Astro.locals.access;
+const client = Astro.locals.supabase;
+let unavailable = access.kind === "unavailable";
+let plans: TrainingPlan[] = [];
+let workouts: TrainingWorkout[] = [];
+if (access.kind === "trainer" || access.kind === "trainee") {
+  if (!client) unavailable = true;
+  else {
+    try {
+      const overview = await getTrainingOverview(client);
+      plans = overview.plans;
+      workouts = overview.workouts;
+    } catch {
+      unavailable = true;
+    }
+  }
+}
+if (unavailable) Astro.response.status = 503;
+const initialTraineeId =
+  access.kind === "trainer" && access.trainees.some((trainee) => trainee.id === Astro.url.searchParams.get("trainee"))
+    ? (Astro.url.searchParams.get("trainee") ?? "")
+    : "";
+const statuses = { planned: "Zaplanowany", in_progress: "W trakcie", completed: "Zakończony" };
+const formatDate = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("pl-PL");
+const today = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Europe/Warsaw",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
+---
+
+<Layout title="Plany i treningi · GymPlanner" lang="pl">
+  <main class="min-h-screen bg-slate-950 px-5 py-8 text-slate-100 sm:px-8 sm:py-12">
+    <div class="mx-auto max-w-5xl">
+      <header class="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-slate-700 pb-6">
+        <a
+          href="/dashboard"
+          class="rounded text-xl font-semibold tracking-tight focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+        >
+          GymPlanner<span class="text-lime-300">.</span>
+        </a>
+        <a
+          href="/dashboard"
+          class="rounded text-sm text-lime-300 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+        >
+          ← Wróć do panelu
+        </a>
+      </header>
+      {unavailable ? (
+        <section>
+          <h1 class="text-3xl font-semibold">Treningi są chwilowo niedostępne</h1>
+          <p class="mt-4 text-slate-300">Nie udało się odczytać danych. Spróbuj ponownie za chwilę.</p>
+          <a
+            href={Astro.url.pathname + Astro.url.search}
+            class="mt-6 inline-block rounded text-lime-300 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-4"
+          >
+            Spróbuj ponownie
+          </a>
+        </section>
+      ) : access.kind === "trainer" ? (
+        <>
+          <p class="mb-3 text-sm font-medium text-lime-300">Panel trenera</p>
+          <h1 class="text-3xl font-semibold sm:text-4xl">Plany i treningi</h1>
+          <p class="mt-3 mb-8 max-w-2xl text-slate-400">
+            Zaplanuj tygodnie, dopasuj każdą jednostkę i sprawdź wykonanie swoich podopiecznych.
+          </p>
+          <TrainingManager
+            client:load
+            plans={plans}
+            workouts={workouts}
+            trainees={access.trainees}
+            initialTraineeId={initialTraineeId}
+          />
+        </>
+      ) : access.kind === "trainee" ? (
+        <>
+          <p class="mb-3 text-sm font-medium text-lime-300">
+            {access.profile.display_name} · {access.profile.identification_label}
+          </p>
+          <h1 class="text-3xl font-semibold sm:text-4xl">Twoje treningi</h1>
+          <p class="mt-3 mb-8 text-slate-400">Wybierz jednostkę, sprawdź rozpiskę i zapisz wykonanie.</p>
+          {!plans.length && (
+            <p class="rounded-2xl border border-slate-700 bg-slate-900 p-6 text-slate-300">
+              Nie masz jeszcze przypisanego planu treningowego.
+            </p>
+          )}
+          <div class="space-y-8">
+            {plans.map((plan) => {
+              const planWorkouts = workouts
+                .filter((workout) => workout.plan_id === plan.id)
+                .sort(
+                  (a, b) => a.scheduled_for.localeCompare(b.scheduled_for) || a.created_at.localeCompare(b.created_at),
+                );
+              const weeks = [...new Set(planWorkouts.map((workout) => workout.week_start))].sort();
+              return (
+                <section class="rounded-2xl border border-slate-700 bg-slate-900 p-5 sm:p-6">
+                  <h2 class="text-2xl font-semibold break-words">{plan.title}</h2>
+                  <p class="mt-2 text-sm text-slate-400">
+                    Ważność: {formatDate(plan.valid_from)} – {formatDate(plan.valid_until)}
+                  </p>
+                  {today > plan.valid_until && (
+                    <p class="mt-3 text-sm text-amber-200">
+                      Plan wygasł. Możesz dokończyć rozpoczęte treningi oraz przeglądać i poprawiać historię.
+                    </p>
+                  )}
+                  {today < plan.valid_from && (
+                    <p class="mt-3 text-sm text-amber-200">Plan zacznie obowiązywać {formatDate(plan.valid_from)}.</p>
+                  )}
+                  {!planWorkouts.length && <p class="mt-5 text-slate-300">Trener przygotowuje jednostki tego planu.</p>}
+                  {weeks.map((week) => (
+                    <div class="mt-6">
+                      <h3 class="mb-3 text-sm font-semibold text-lime-300">Tydzień od {formatDate(week)}</h3>
+                      <ul class="space-y-3">
+                        {planWorkouts
+                          .filter((workout) => workout.week_start === week)
+                          .map((workout) => (
+                            <li>
+                              <a
+                                href={`/dashboard/training/${workout.id}`}
+                                class="flex min-h-20 flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-950/40 p-4 transition-colors hover:border-lime-300/50 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime-300"
+                              >
+                                <div class="min-w-0">
+                                  <p class="text-sm text-slate-400">{formatDate(workout.scheduled_for)}</p>
+                                  <h4 class="mt-1 text-lg font-medium break-words">{workout.unit_label}</h4>
+                                  <p class="mt-1 text-sm text-slate-300">
+                                    {statuses[workout.status]}
+                                    {workout.corrected_at && " · Poprawiony"}
+                                  </p>
+                                </div>
+                                <span class="text-sm font-medium text-lime-300">Otwórz trening →</span>
+                              </a>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ))}
+                </section>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <section>
+          <h1 class="text-3xl font-semibold">Konto oczekuje na konfigurację</h1>
+          <p class="mt-4 text-slate-300">Operator przygotuje Twój profil i dostęp do treningów.</p>
+        </section>
+      )}
+    </div>
+  </main>
+</Layout>
