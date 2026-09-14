@@ -1,7 +1,11 @@
 import type { APIRoute } from "astro";
+import { ALLOW_SIGNUP } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
+  if (!ALLOW_SIGNUP) {
+    return new Response("Rejestracja jest wyłączona.", { status: 403 });
+  }
   const form = await context.request.formData();
   const email = form.get("email") as string;
   const password = form.get("password") as string;

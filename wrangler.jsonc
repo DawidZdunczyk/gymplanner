@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "10x-astro-starter",
+  "name": "gymplanner-local",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
@@ -11,5 +11,21 @@
   },
   "observability": {
     "enabled": true,
+  },
+  "workers_dev": false,
+  "preview_urls": false,
+  "env": {
+    "staging": {
+      "name": "gymplanner-staging",
+      "workers_dev": true,
+      "preview_urls": false,
+      "vars": { "ALLOW_SIGNUP": false },
+    },
+    "production": {
+      "name": "gymplanner",
+      "workers_dev": true,
+      "preview_urls": false,
+      "vars": { "ALLOW_SIGNUP": false },
+    },
   },
 }

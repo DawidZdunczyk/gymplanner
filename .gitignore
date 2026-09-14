@@ -82,6 +82,7 @@ Desktop.ini
 .env.production
 # cloudflare
 .dev.vars
+.dev.vars.*
 .wrangler/
 # macOS-specific files
 # jetbrains setting folder

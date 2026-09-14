@@ -28,12 +28,14 @@ GymPlanner to aplikacja webowa dla trenera i podopiecznego, obecnie ze szkielete
 
 ## Testy i CI
 
-- `npm run smoke` uruchamia @scripts/smoke.mjs: wymaga działającej aplikacji oraz testowego Supabase z wyłączonym potwierdzaniem e-maila; tworzy konto testowe.
-- Nie ma runnera testów jednostkowych ani skryptu `npm test`.
-- @.github/workflows/ci.yml sprawdza lint, typy, build i logowanie dla `master`. Uzgodnione wdrażanie po scaleniu do `main` nie jest jeszcze skonfigurowane.
-- Przed poleganiem na @.nvmrc wyrównaj Node z wymaganiami zależności. Szczegóły rozbieżności i wyniki bootstrapu: @context/changes/bootstrap-verification/verification.md.
-- Repozytorium nie ma jeszcze commitów; konwencja commitów/PR pozostaje do ustalenia.
+- `npm run smoke` uruchamia @scripts/smoke.mjs w trybie `existing`: wymaga przygotowanego konta (`SMOKE_EMAIL`, `SMOKE_PASSWORD`) i nie tworzy użytkowników. `npm run smoke:local` sprawdza oba tryby na lokalnym Supabase i tworzy wyłącznie lokalne konto testowe.
+- `npm run check:deployment` uruchamia testy zabezpieczeń wdrożenia przez wbudowany `node:test`; nie ma skryptu `npm test`.
+- @.github/workflows/ci.yml sprawdza lint, typy, build i logowanie dla `main`. Ręczne pierwsze wdrożenie i kolejne przy `DEPLOY_ENABLED=true`: staging → smoke → produkcja → smoke, ten sam SHA. Sekrety publikacji tylko na `main`, poza PR.
+- Używaj Node 22.22.3 z @.nvmrc, także w CI. Wyniki wdrożenia i lokalnych testów: @context/deployment/verification.md.
+- Repozytorium ma historię Git i gałąź `main`; zachowuj istniejące commity, bez force-push.
 
 ## Infrastruktura
 
 Przed wdrożeniem użyj `/10x-infra-research`, następnie przygotuj plan w Plan Mode. Zapisz zatwierdzony plan do `context/deployment/deploy-plan.md`; dopiero po zatwierdzeniu zmieniaj produkcję. Stosuj konfigurację Workers z @wrangler.jsonc. Procedura badania platform: @.agents/skills/10x-infra-research/SKILL.md.
+
+Pierwszy plan wdrożenia został zatwierdzony: @context/deployment/deploy-plan.md. Instrukcje konfiguracji: @context/deployment/README.md. Publiczna rejestracja domyślnie wyłączona (`ALLOW_SIGNUP=false`); nie włączaj jej na hostowanych środowiskach.

@@ -1,9 +1,14 @@
 import { defineMiddleware } from "astro:middleware";
+import { ALLOW_SIGNUP } from "astro:env/server";
 import { createClient } from "@/lib/supabase";
 
 const PROTECTED_ROUTES = ["/dashboard"];
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  if (!ALLOW_SIGNUP && context.url.pathname.replace(/\/$/, "") === "/auth/signup") {
+    return context.redirect("/auth/signin");
+  }
+
   const supabase = createClient(context.request.headers, context.cookies);
 
   if (supabase) {

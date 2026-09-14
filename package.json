@@ -1,5 +1,5 @@
 {
-  "name": "10x-astro-starter",
+  "name": "gymplanner",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -10,7 +10,11 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "smoke": "node scripts/smoke.mjs"
+    "smoke": "node scripts/smoke.mjs",
+    "smoke:local": "node scripts/local-smoke.mjs",
+    "check:deployment": "node --test scripts/deployment.test.mjs",
+    "deploy:staging": "node scripts/deploy.mjs staging",
+    "deploy:production": "node scripts/deploy.mjs production"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.10",
