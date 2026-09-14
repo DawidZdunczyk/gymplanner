@@ -1,0 +1,87 @@
+# ASP.NET Core / .NET build output
+[Bb]in/
+[Oo]bj/
+[Aa]rtifacts/
+[Pp]ublish/
+*.nupkg
+*.snupkg
+
+# React / Node.js dependencies and generated files
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test results and coverage
+TestResults/
+coverage/
+playwright-report/
+test-results/
+*.trx
+*.coverage
+*.coveragexml
+
+# Local environment and secrets (keep example files versioned)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.pfx
+*.p12
+*.publishsettings
+*.pubxml.user
+
+# SQLite runtime databases and journals
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+
+# IDE and user-specific settings
+.vs/
+.idea/
+*.user
+*.suo
+*.sln.docstates
+*.DotSettings.user
+
+# Logs, temporary files, and OS metadata
+logs/
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+
+# from 10x-astro-starter
+# build output
+# generated types
+.astro/
+# dependencies
+# logs
+# environment variables
+.env.production
+# cloudflare
+.dev.vars
+.wrangler/
+# macOS-specific files
+# jetbrains setting folder
