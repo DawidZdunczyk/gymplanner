@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { readDeploymentConfig, validatePublicKey } from "./deployment-config.mjs";
-import { readSmokeConfig } from "./smoke.mjs";
+import { readSmokeConfig, smokeFailureDetail } from "./smoke.mjs";
 import { prepareCiSupabase } from "./prepare-ci-supabase.mjs";
 import { waitForWorker } from "./worker-readiness.mjs";
 
@@ -129,6 +129,7 @@ test("readiness waits through network and edge errors using anonymous GET only",
   const replies = [new Error("network"), 404, 523, 200];
   let calls = 0;
   await waitForWorker(env.STAGING_URL, {
+    requiredSuccesses: 1,
     timeoutMs: 100,
     intervalMs: 10,
     now: () => clock,
@@ -139,17 +140,17 @@ test("readiness waits through network and edge errors using anonymous GET only",
       /* Suppress expected retry messages in tests. */
     },
     request: async (url, options) => {
-      assert.equal(url, env.STAGING_URL);
+      assert.ok([`${env.STAGING_URL}/`, `${env.STAGING_URL}/auth/signin`].includes(url));
       assert.equal(options.method, "GET");
       assert.equal(options.redirect, "manual");
       assert.equal(options.body, undefined);
       assert.equal(options.headers.Authorization, undefined);
-      const reply = replies[calls++];
+      const reply = replies[calls++] ?? 200;
       if (reply instanceof Error) throw reply;
       return { status: reply };
     },
   });
-  assert.equal(calls, 4);
+  assert.equal(calls, 5);
   assert.equal(clock, 30);
 });
 
@@ -192,8 +193,61 @@ test("readiness does not retry auth failures, redirects or application errors", 
         },
         pause: async () => assert.fail("Unexpected retry"),
       }),
-      new RegExp(`readiness failed: HTTP ${status}`),
+      new RegExp(`readiness failed: /: HTTP ${status}`),
     );
     assert.equal(calls, 1);
   }
+});
+
+test("readiness requires both pages and resets consecutive successes after a signin 404", async () => {
+  let clock = 0;
+  let calls = 0;
+  const replies = [200, 200, 200, 404, 200, 200, 200, 200, 200, 200];
+  await waitForWorker(env.STAGING_URL, {
+    now: () => clock,
+    pause: async (ms) => {
+      clock += ms;
+    },
+    log: () => undefined,
+    request: async (url) => {
+      assert.equal(new URL(url).pathname, calls % 2 === 0 ? "/" : "/auth/signin");
+      return { status: replies[calls++] };
+    },
+  });
+  assert.equal(calls, 10);
+  assert.equal(clock, 20000);
+});
+
+test("readiness fails when only signin stays missing", async () => {
+  let clock = 0;
+  await assert.rejects(
+    waitForWorker(env.STAGING_URL, {
+      timeoutMs: 30,
+      intervalMs: 10,
+      now: () => clock,
+      pause: async (ms) => {
+        clock += ms;
+      },
+      log: () => undefined,
+      request: async (url) => ({ status: new URL(url).pathname === "/" ? 200 : 404 }),
+    }),
+    /auth\/signin: HTTP 404/,
+  );
+  assert.equal(clock, 30);
+});
+
+test("smoke diagnostics identify known auth errors without disclosing arbitrary data", () => {
+  assert.match(
+    smokeFailureDetail({ location: "/auth/signin?error=Invalid%20login%20credentials" }),
+    /credentials rejected/,
+  );
+  assert.match(
+    smokeFailureDetail({ location: "/auth/signin?error=Email%20not%20confirmed" }),
+    /email is not confirmed/,
+  );
+  const secret = "private@example.com-secret-password";
+  for (const location of [`/auth/signin?error=${secret}`, `https://example.com/${secret}`]) {
+    assert.ok(!smokeFailureDetail({ location, body: secret, ray: secret }).includes(secret));
+  }
+  assert.match(smokeFailureDetail({ ray: "1234567890abcdef-WAW" }), /CF-Ray 1234567890abcdef-WAW/);
 });
