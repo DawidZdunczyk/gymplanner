@@ -301,12 +301,12 @@ Lokalnie używać `db push --local`, bez `db reset`; typy generować z lokalnego
 
 #### Automated
 
-- [x] 3.1 `npm run check:deployment` potwierdza poprawne kopiowanie migracji i zachowanie istniejących zabezpieczeń przygotowania CI oraz wdrożenia.
-- [x] 3.2 Cały przebieg `smoke:local` → `smoke:access:local` przechodzi na świeżym, izolowanym projekcie Supabase; nie używa hostowanej bazy, nie wymaga profilu dla podstawowego konta smoke i sprząta własne fixture oraz preview.
-- [x] 3.3 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`; `git diff --check` nie zgłasza błędów.
+- [x] 3.1 `npm run check:deployment` potwierdza poprawne kopiowanie migracji i zachowanie istniejących zabezpieczeń przygotowania CI oraz wdrożenia. — e82276d
+- [x] 3.2 Cały przebieg `smoke:local` → `smoke:access:local` przechodzi na świeżym, izolowanym projekcie Supabase; nie używa hostowanej bazy, nie wymaga profilu dla podstawowego konta smoke i sprząta własne fixture oraz preview. — e82276d
+- [x] 3.3 Na Node 22.22.3 przechodzą kolejno `npx astro sync`, `npm run lint`, `npx astro check`, `npm run build`; `git diff --check` nie zgłasza błędów. — e82276d
 
 #### Manual
 
-- [x] 3.4 W przeglądarce trener loguje się bezpośrednio do panelu, rozróżnia osoby o tej samej nazwie, otwiera właściwą kartę i wraca do listy; widoki są czytelne na telefonie oraz obsługiwane klawiaturą.
-- [x] 3.5 Podopieczny widzi własną nazwę i swojego trenera; konto bez przypisania i konto bez profilu pokazują właściwe komunikaty; wylogowanie odbiera dostęp, także po ponownym otwarciu panelu.
-- [x] 3.6 Operator na lokalnych kontach wykonuje udokumentowaną zmianę przypisania; stary trener traci dostęp przy kolejnym odczycie, a nowy widzi wyłącznie właściwą osobę. Niedostępność lokalnego backendu daje komunikat błędu, nie pustą listę.
+- [x] 3.4 W przeglądarce trener loguje się bezpośrednio do panelu, rozróżnia osoby o tej samej nazwie, otwiera właściwą kartę i wraca do listy; widoki są czytelne na telefonie oraz obsługiwane klawiaturą. — e82276d
+- [x] 3.5 Podopieczny widzi własną nazwę i swojego trenera; konto bez przypisania i konto bez profilu pokazują właściwe komunikaty; wylogowanie odbiera dostęp, także po ponownym otwarciu panelu. — e82276d
+- [x] 3.6 Operator na lokalnych kontach wykonuje udokumentowaną zmianę przypisania; stary trener traci dostęp przy kolejnym odczycie, a nowy widzi wyłącznie właściwą osobę. Niedostępność lokalnego backendu daje komunikat błędu, nie pustą listę. — e82276d
