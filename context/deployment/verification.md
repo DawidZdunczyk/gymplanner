@@ -23,7 +23,7 @@ cloud_status: awaiting_ci_retry
 | `npm run lint`                               | PASS                                                                  |
 | `npx astro check`                            | PASS; 0 errors, 0 warnings, 0 hints                                   |
 | `npm run build`                              | PASS; bez SITE_URL lokalnie sitemap jest pomijany                     |
-| `npm run check:deployment`                   | PASS; 10 testów, w tym kolizja portów i oczekiwanie na Worker          |
+| `npm run check:deployment`                   | PASS; 13 testów, w tym gotowość obu stron i bezpieczna diagnostyka     |
 | `npm run smoke:local` — signup               | PASS; 12 kontroli HTTP, tylko lokalne konto                           |
 | `npm run smoke:local` — existing             | PASS; 13 kontroli HTTP, w tym blokada strony i API signup             |
 | Build staging z testowym SITE_URL            | PASS; gymplanner-staging, ALLOW_SIGNUP=false, bez KV/Images           |
@@ -69,3 +69,12 @@ Po publikacji dopisać rzeczywiste URL-e, SHA i ID wersji z artefaktów Actions,
 - Smoke sprawdza teraz także stronę główną i ochronę dashboardu z `Sec-Fetch-Mode: navigate`. Pełny lokalny test z Supabase: PASS, 12 + 13 kontroli HTTP; oba serwery preview zatrzymane. `astro sync` → lint → `astro check` → build oraz 10 testów zabezpieczeń: PASS.
 - Ponowienie uwzględnia wyłączony adres poprzedniej niezweryfikowanej wersji: nadal przeprowadza próbę rollback po pierwszym sukcesie, a przy kolejnej awarii wyłącza adres. Raport zapisuje osobno opublikowaną i zweryfikowaną wersję oraz błąd. Stan adresu jest odczytywany przez [Cloudflare API](https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/subdomain/methods/get/).
 - Sukces poprawki w chmurze wymaga nowego ręcznego przebiegu z `main`. `DEPLOY_ENABLED` pozostaje `false`.
+
+## HTTP 404 formularza po działającej stronie głównej — 2026-09-14
+
+- Najnowszy log użytkownika: gotowość strony głównej i ochrona dashboardu PASS, następnie `signin page: unexpected response (HTTP 404)`. Ten przebieg nie dotarł do próby logowania; nie jest dowodem błędnego hasła. Wcześniejszy przebieg dotarł do próby poprawnego hasła, ale zwrócił inne przekierowanie niż oczekiwane. Jego przyczyna pozostaje nieustalona.
+- Dotychczasowy warunek gotowości sprawdzał tylko pojedyncze HTTP 200 `/`. Rozszerzono go o `/auth/signin` i trzy kolejne pełne rundy sukcesu; odstęp 5 sekund, łączny limit 120 sekund. Nie dowodzi to źródła 404 ani przyszłej dostępności, ale wykrywa brak formularza przed wysyłaniem danych logowania. Pełny smoke i warunki sukcesu logowania pozostają wymagane.
+- Diagnostyka smoke podaje formatowo zweryfikowany CF-Ray i stałe etykiety rozpoznanych błędów logowania; pomija dowolną treść odpowiedzi/przekierowań. Test sprawdza, że nieznane dane i błędny CF-Ray nie są ujawniane.
+- W osobnym checkoutcie z `origin/main` (`7201561`): czyste `npm ci`, `astro sync` → lint → `astro check` → build PASS; 0 błędów/ostrzeżeń/wskazówek typów. 13 testów wdrożenia PASS, w tym 200 strony głównej + 404 formularza, zerowanie serii oraz stałe 404. Pełny smoke z bazą nie był powtarzany w tej poprawce; wcześniejsze wyniki 12 + 13 dotyczą poprzedniej wersji.
+- Dwa niezależne przeglądy zakresu i bezpieczeństwa: bez ustaleń. [Raport](../changes/deployment-readiness/reviews/impl-review.md). Poprawka nie zawiera równoległych prac nad rolami i migracjami aplikacji.
+- Wdrożenie zdalne i logowanie nadal oczekują na nowy ręczny workflow. Samo przejście testów lokalnych nie zamyka planu wdrożenia.

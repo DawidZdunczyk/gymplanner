@@ -5,6 +5,26 @@ import { pathToFileURL } from "node:url";
 
 const isLoopback = (url) => ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
 
+// Only fixed diagnostic labels reach CI logs. Never print response bodies,
+// arbitrary redirect URLs, credentials or upstream error messages.
+export function smokeFailureDetail(response) {
+  let detail = "";
+  if (response.location?.startsWith("/auth/signin?")) {
+    const message = new URL(response.location, "https://smoke.invalid").searchParams.get("error");
+    const known = new Map([
+      ["Invalid login credentials", "credentials rejected; check the target project's smoke account"],
+      ["Email not confirmed", "smoke account email is not confirmed"],
+      ["Invalid API key", "Supabase API key rejected; check the target project's URL and key"],
+      ["Supabase is not configured", "Supabase runtime configuration is missing"],
+    ]);
+    detail = `; signin error: ${known.get(message) ?? "unrecognized error; inspect Supabase Auth logs"}`;
+  } else if (response.location) {
+    detail = "; unexpected redirect (destination omitted)";
+  }
+  if (/^[a-f0-9]{16,32}-[A-Z]{3}$/.test(response.ray ?? "")) detail += `; CF-Ray ${response.ray}`;
+  return detail;
+}
+
 export function readSmokeConfig(env = process.env) {
   const url = new URL(env.BASE_URL ?? "http://localhost:4321");
   const mode = env.SMOKE_MODE ?? "existing";
@@ -46,6 +66,7 @@ export async function runSmoke(config) {
             status: response.statusCode,
             location: response.headers.location ?? "",
             body,
+            ray: response.headers["cf-ray"],
           }),
         );
       });
@@ -71,11 +92,17 @@ export async function runSmoke(config) {
       if (attrs.some((a) => /max-age=0/i.test(a.trim()))) jar.delete(name.trim());
       else jar.set(name.trim(), rest.join("="));
     }
-    return { status: response.status, location: response.headers.get("location") ?? "", body: await response.text() };
+    return {
+      status: response.status,
+      location: response.headers.get("location") ?? "",
+      body: await response.text(),
+      ray: response.headers.get("cf-ray"),
+    };
   }
   async function check(name, operation, verify) {
     const response = await operation();
-    if (!verify(response)) throw new Error(`${name}: unexpected response (HTTP ${response.status})`);
+    if (!verify(response))
+      throw new Error(`${name}: unexpected response (HTTP ${response.status})${smokeFailureDetail(response)}`);
     console.log(`PASS ${name}`);
   }
   const redirect = (location) => (r) => r.status === 302 && r.location === location;
