@@ -6,7 +6,10 @@ import { setTimeout as delay } from "node:timers/promises";
 import { readSmokeConfig, runSmoke } from "./smoke.mjs";
 
 // Supabase must already be running. Capture credentials in memory, never print them.
-const status = spawnSync("npx", ["--no-install", "supabase", "status", "-o", "json"], { encoding: "utf8" });
+const workdirArgs = process.env.SUPABASE_WORKDIR ? ["--workdir", process.env.SUPABASE_WORKDIR] : [];
+const status = spawnSync("npx", ["--no-install", "supabase", ...workdirArgs, "status", "-o", "json"], {
+  encoding: "utf8",
+});
 if (status.status !== 0) throw new Error("Start local Supabase before running smoke:local");
 const info = JSON.parse(status.stdout);
 const supabaseUrl = info.API_URL;

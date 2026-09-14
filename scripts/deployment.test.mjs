@@ -1,8 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
+import { readFile, rm } from "node:fs/promises";
+import { createServer } from "node:net";
+import { join } from "node:path";
 import { readDeploymentConfig, validatePublicKey } from "./deployment-config.mjs";
 import { readSmokeConfig } from "./smoke.mjs";
+import { prepareCiSupabase } from "./prepare-ci-supabase.mjs";
 
 const env = {
   CLOUDFLARE_ACCOUNT_ID: "a".repeat(32),
@@ -69,4 +73,26 @@ test("hosted smoke defaults to prepared accounts and requires HTTPS", () => {
     SMOKE_PASSWORD: "test",
   });
   assert.equal(config.mode, "existing");
+});
+
+test("CI skips occupied ports and isolates project identity without changing developer config", async (t) => {
+  const original = await readFile("supabase/config.toml", "utf8");
+  const occupied = createServer();
+  await new Promise((resolve, reject) => {
+    occupied.once("error", (error) => (error.code === "EADDRINUSE" ? resolve() : reject(error)));
+    occupied.listen(15420, "0.0.0.0", resolve);
+  });
+  t.after(() => new Promise((resolve) => occupied.close(resolve)));
+  const first = await prepareCiSupabase();
+  t.after(() => rm(first.workdir, { recursive: true, force: true }));
+  const second = await prepareCiSupabase();
+  t.after(() => rm(second.workdir, { recursive: true, force: true }));
+  assert.notEqual(first.project, second.project);
+  assert.notEqual(first.workdir, second.workdir);
+  assert.ok(first.ports.every((port) => port > 15420 && port < 25000));
+  assert.equal(new Set(first.ports).size, first.ports.length);
+  const config = await readFile(join(first.workdir, "supabase/config.toml"), "utf8");
+  assert.ok(config.includes(`project_id = "${first.project}"`));
+  assert.doesNotMatch(config, /^port = 54322$/m);
+  assert.equal(await readFile("supabase/config.toml", "utf8"), original);
 });

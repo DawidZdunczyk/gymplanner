@@ -23,7 +23,7 @@ cloud_status: awaiting_ci_retry
 | `npm run lint`                               | PASS                                                                  |
 | `npx astro check`                            | PASS; 0 errors, 0 warnings, 0 hints                                   |
 | `npm run build`                              | PASS; bez SITE_URL lokalnie sitemap jest pomijany                     |
-| `npm run check:deployment`                   | PASS; 6 testów zabezpieczeń                                           |
+| `npm run check:deployment`                   | PASS; 7 testów, w tym regresja kolizji portów                          |
 | `npm run smoke:local` — signup               | PASS; 10 kontroli HTTP, tylko lokalne konto                           |
 | `npm run smoke:local` — existing             | PASS; 11 kontroli HTTP, w tym blokada strony i API signup             |
 | Build staging z testowym SITE_URL            | PASS; gymplanner-staging, ALLOW_SIGNUP=false, bez KV/Images           |
@@ -52,3 +52,11 @@ Po publikacji dopisać rzeczywiste URL-e, SHA i ID wersji z artefaktów Actions,
 - Czyste `npm ci --no-audit --no-fund` na Linux amd64: PASS, 664 pakiety. Następnie `astro sync` → lint → `astro check` → build oraz 6 testów zabezpieczeń wdrożenia: PASS na Linux amd64 i lokalnie na macOS; typy bez błędów, ostrzeżeń i wskazówek.
 - Wcześniejszy build z istniejącym lokalnym `node_modules` nie sprawdzał poprawności czystej instalacji. Przy kolejnych zmianach zależności sprawdzać `npm ci` w izolowanym środowisku.
 - Ponowne wdrożenie wymaga nowego `Run workflow` z aktualnego `main`; `Re-run jobs` starego uruchomienia użyłoby starego commita.
+
+## Izolacja portów Supabase w CI — 2026-09-14
+
+- Kolejne uruchomienie zatrzymało się na starcie lokalnego Supabase: port `54322` był zajęty. Przekazany log nie wskazuje procesu zajmującego port.
+- CI tworzy tymczasową konfigurację z unikalną nazwą `gymplanner-ci-…` i wolnymi portami poniżej 25000. Wszystkie operacje start/status/stop odwołują się do niej przez `SUPABASE_WORKDIR`; konfiguracja dewelopera nie jest modyfikowana.
+- Test regresji zajmuje pierwszy proponowany port i potwierdza wybranie innego zakresu, unikalne nazwy projektów i zachowanie oryginalnego pliku. PASS na macOS i Linux amd64; łącznie 7 testów.
+- Pełny test integracyjny pozostawił istniejący `supabase_db_10x-astro-starter` na `54322` i uruchomił obok tymczasowy `gymplanner-ci-a3bb1422`, z API `15420` i bazą `15421`. Start oraz oba tryby smoke przeszły: 10 + 11 kontroli HTTP. Preview i tymczasowy Supabase zatrzymane po testach; pierwotne kontenery nadal działają.
+- `astro sync` → lint → `astro check` → build: PASS. Test nie używał projektów ani sekretów staging/produkcji. Wynik właściwego wdrożenia nadal wymaga nowego ręcznego uruchomienia Actions.

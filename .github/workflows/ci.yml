@@ -43,11 +43,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Prepare isolated Supabase project and free ports
+        run: node scripts/prepare-ci-supabase.mjs
       - name: Start isolated local Supabase
-        run: npx --no-install supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,realtime,storage-api,postgres-meta,supavisor
+        run: npx --no-install supabase --workdir "$SUPABASE_WORKDIR" start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,realtime,storage-api,postgres-meta,supavisor
       - run: npm run smoke:local
-      - if: always()
-        run: npx --no-install supabase stop --no-backup
+      - if: always() && env.SUPABASE_WORKDIR != ''
+        run: npx --no-install supabase --workdir "$SUPABASE_WORKDIR" stop --no-backup
 
   deploy-staging:
     needs: [checks, smoke]
