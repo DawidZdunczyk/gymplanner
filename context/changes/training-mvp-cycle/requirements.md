@@ -40,4 +40,4 @@ Skrócone nazwy komponentów w tabeli oznaczają pliki w `src/components/trainin
 
 - [x] Końcowe `npx astro check` → `npm run build` oraz `git diff --check`: **PASS**. Astro: 62 pliki, 0 błędów, 0 ostrzeżeń i 0 wskazówek. Pełne polecenia, wyniki, dowód czerwonego testu i granice: [verification.md](verification.md).
 
-FR-012 ma dowód bazy i review UI, bez osobnego E2E wygasłego planu. FR-003 nie ma przeglądarkowego dowodu każdej kombinacji celów i parametrów. Opcjonalne AI, wdrożenie zdalne oraz niezrealizowane ręczne kryteria S-01 nie są uznane za ukończone na podstawie tych testów.
+FR-012 ma dowód bazy i review UI, bez osobnego E2E wygasłego planu. FR-003 nie ma przeglądarkowego dowodu każdej kombinacji celów i parametrów. Opcjonalne AI i wdrożenie zdalne pozostają poza zakończoną implementacją lokalną. Ręczne kryteria S-01 zostały osobno potwierdzone przez użytkownika 2026-09-14; nie wywodzimy tego potwierdzenia z testów automatycznych.

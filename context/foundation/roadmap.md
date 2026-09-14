@@ -9,7 +9,7 @@ main_goal: market-feedback
 top_blocker: none
 milestone_id: training-without-spreadsheets
 milestone_seq: 1
-milestone_status: open
+milestone_status: done
 ---
 
 # Mapa drogowa: GymPlanner
@@ -20,7 +20,7 @@ milestone_status: open
 
 ## Milestone
 
-**M-1: Trening od planu do wyników bez arkusza** — Status: open
+**M-1: Trening od planu do wyników bez arkusza** — Status: done
 
 - **Cel:** Dostarczyć wymagany przepływ MVP: trener udostępnia plan, podopieczny zapisuje i kończy trening, a trener porównuje wykonanie z zachowaną rozpiską. Zapewnić również wymagane korekty, superserie, zmiany przyszłych tygodni i widoczność komentarzy.
 - **Materiały źródłowe:** `context/foundation/prd.md` (v1); pomocniczo `context/foundation/shape-notes.md`, `context/foundation/tech-stack.md`, `context/foundation/infrastructure.md`, `context/deployment/deploy-plan.md`, `context/deployment/verification.md`.
@@ -40,19 +40,19 @@ Użytkownik wybrał cel `market-feedback` i brak blokady planowania (`none`). Ob
 
 ## At a glance
 
-Aktualizacja 2026-09-14: na polecenie użytkownika pełny zakres S-02–S-09 zrealizowano wspólnie w [training-mvp-cycle](../changes/training-mvp-cycle/plan.md). Zachowano identyfikatory wycinków, a wspólna zmiana jest ich źródłem implementacji i [dowodów](../changes/training-mvp-cycle/verification.md). Status `done` poniżej oznacza funkcjonalność zweryfikowaną lokalnie. S-01 nadal oczekuje trzech ręcznych potwierdzeń; kamień milowy pozostaje otwarty. Migracje zdalne, eksport/odtworzenie danych i próba z rzeczywistymi użytkownikami pozostają przed udostępnieniem.
+Aktualizacja 2026-09-14: na polecenie użytkownika pełny zakres S-02–S-09 zrealizowano wspólnie w [training-mvp-cycle](../changes/training-mvp-cycle/plan.md). Zachowano identyfikatory wycinków, a wspólna zmiana jest ich źródłem implementacji i [dowodów](../changes/training-mvp-cycle/verification.md). Status `done` poniżej oznacza funkcjonalność zweryfikowaną lokalnie. S-01 otrzymał ręczne potwierdzenie użytkownika 2026-09-14. Wszystkie 9 wycinków jest zakończonych, a kamień milowy lokalnego MVP zamknięty. Migracje zdalne, eksport/odtworzenie danych i próba z rzeczywistymi użytkownikami pozostają przed udostępnieniem.
 
-| ID   | Change ID                    | Outcome                                             | Prerequisites | PRD refs                                             | Status      |
-| ---- | ---------------------------- | --------------------------------------------------- | ------------- | ---------------------------------------------------- | ----------- |
-| S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | —             | FR-001, FR-002, US-01                                | in-progress |
-| S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | S-01          | FR-002, FR-003, FR-005, FR-012, FR-015, US-01, US-04 | done        |
-| S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | S-02          | FR-005, FR-006, FR-009, FR-012, US-01, US-04         | done        |
-| S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | S-03          | FR-007, FR-009, FR-015, US-01, US-04                 | done        |
-| S-05 | compare-training-results     | Trener porównuje plan z wykonaniem                  | S-04          | FR-002, FR-010, US-01                                | done        |
-| S-06 | revise-future-training-week  | Trener zmienia przyszłe treningi                    | S-03          | FR-003, FR-004, FR-012, US-01                        | done        |
-| S-07 | train-superset-rounds        | Trener zleca superserię, podopieczny wykonuje rundy | S-04          | FR-003, FR-006, FR-009, FR-014, US-03                | done        |
-| S-08 | training-comment-visibility  | Podopieczny wybiera widoczność komentarza           | S-04          | FR-008, US-01                                        | done        |
-| S-09 | correct-completed-training   | Podopieczny koryguje zakończony trening             | S-05, S-07    | FR-010, FR-012, FR-013, US-02                        | done        |
+| ID   | Change ID                    | Outcome                                             | Prerequisites | PRD refs                                             | Status |
+| ---- | ---------------------------- | --------------------------------------------------- | ------------- | ---------------------------------------------------- | ------ |
+| S-01 | assigned-trainee-access      | Trener widzi swoich podopiecznych                   | —             | FR-001, FR-002, US-01                                | done   |
+| S-02 | publish-weekly-training-plan | Trener udostępnia tygodniowy plan podopiecznemu     | S-01          | FR-002, FR-003, FR-005, FR-012, FR-015, US-01, US-04 | done   |
+| S-03 | record-training-sets         | Podopieczny rozpoczyna trening i zapisuje serie     | S-02          | FR-005, FR-006, FR-009, FR-012, US-01, US-04         | done   |
+| S-04 | complete-rated-training      | Podopieczny rozlicza i kończy trening               | S-03          | FR-007, FR-009, FR-015, US-01, US-04                 | done   |
+| S-05 | compare-training-results     | Trener porównuje plan z wykonaniem                  | S-04          | FR-002, FR-010, US-01                                | done   |
+| S-06 | revise-future-training-week  | Trener zmienia przyszłe treningi                    | S-03          | FR-003, FR-004, FR-012, US-01                        | done   |
+| S-07 | train-superset-rounds        | Trener zleca superserię, podopieczny wykonuje rundy | S-04          | FR-003, FR-006, FR-009, FR-014, US-03                | done   |
+| S-08 | training-comment-visibility  | Podopieczny wybiera widoczność komentarza           | S-04          | FR-008, US-01                                        | done   |
+| S-09 | correct-completed-training   | Podopieczny koryguje zakończony trening             | S-05, S-07    | FR-010, FR-012, FR-013, US-02                        | done   |
 
 ## Streams
 
@@ -97,7 +97,7 @@ Brak osobnych fundamentów. Minimalne przypisania, kontrola dostępu i ścieżka
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Pierwszy przepływ ustanawia i sprawdza izolację użytkowników, zanim pojawią się jakiekolwiek dane treningowe.
-- **Status:** in-progress
+- **Status:** done
 
 Wykorzystać istniejące logowanie. W tym przepływie wprowadzić minimalne role, przypisania i ich egzekwowanie oraz powtarzalną weryfikację dwóch ról i obcej relacji na danych testowych. Przygotowanie kont i relacji pozostaje operacyjne, bez interfejsu rejestracji lub zaproszeń.
 
@@ -215,7 +215,7 @@ Zamiennik zawiera nazwę, liczbę serii, powtórzenia, trudność oraz RIR lub R
 
 ## Backlog Handoff
 
-- S-01: kod i testy automatyczne gotowe; potwierdzić ręcznie punkty 3.4–3.6 w [planie](../changes/assigned-trainee-access/plan.md). Nie uruchamiać ponownie planowania tego samego zakresu.
+- S-01: zakończony; 14/14 kryteriów [planu](../changes/assigned-trainee-access/plan.md), w tym ręczny odbiór użytkownika z 2026-09-14. Nie uruchamiać ponownie planowania tego samego zakresu.
 - S-02–S-09: wspólna implementacja `training-mvp-cycle`, testy DB oraz dwa scenariusze E2E przeszły na świeżej bazie. [Mapa wymagań](../changes/training-mvp-cycle/requirements.md) wskazuje zakres każdej warstwy weryfikacji.
 - Przed udostępnieniem: osobny zatwierdzony plan migracji ról i treningów, przygotowane konta, eksport i próba odtworzenia, testy zdalne, logi i rollback. Zatwierdzenie startera nie obejmuje migracji danych domenowych.
 - Następna decyzja produktowa po udostępnieniu: sprawdzić North Star u rzeczywistych podopiecznych i trenerów. Opcjonalne AI pozostaje w Parked.
@@ -236,6 +236,8 @@ Właściciel: użytkownik. Blok: nie — pytanie dotyczy walidacji produktu, nie
 
 ## Milestone History
 
+- **M-1 — training-without-spreadsheets**, zamknięty 2026-09-14. Źródło: PRD v1. Zakres: S-01–S-09, FR-001–FR-010 i FR-012–FR-015, US-01–US-04. Wynik: lokalny przepływ plan → wykonanie → porównanie oraz wymagane rozszerzenia; testy DB/HTTP i E2E 2/2 PASS, ręczna akceptacja S-01 przez użytkownika. Wdrożenie i walidacja wartości u rzeczywistych użytkowników pozostają przed udostępnieniem.
+
 ## Done
 
-2026-09-14: lokalna implementacja S-02–S-09 w `training-mvp-cycle`; pełny izolowany przebieg Auth → dostęp → treningi → E2E PASS. Nie archiwizowano zmian i nie zamknięto M-1 z powodu oczekującej akceptacji S-01.
+2026-09-14: lokalna implementacja S-02–S-09 w `training-mvp-cycle`; pełny izolowany przebieg Auth → dostęp → treningi → E2E PASS. Po późniejszym potwierdzeniu ręcznego odbioru S-01 przez użytkownika zamknięto również S-01 i M-1. Nie archiwizowano zmian.

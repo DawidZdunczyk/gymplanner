@@ -38,11 +38,11 @@ Priorytet wynika z North Star oraz kontroli dostępu PRD. Aktywnie zmieniane obs
 
 ## 3. Phased Rollout
 
-| #   | Phase name           | Goal (one line)                              | Risks covered | Test types               | Status       | Change folder                            |
-| --- | -------------------- | -------------------------------------------- | ------------- | ------------------------ | ------------ | ---------------------------------------- |
-| 1   | Dostęp obu ról       | Zachować ochronę danych                      | #2            | integration + HTTP smoke | implementing | context/changes/assigned-trainee-access/ |
-| 2   | Reguły treningów     | Dowieść integralności danych i przejść stanu | #2–#6         | integration              | done         | context/changes/training-mvp-cycle/      |
-| 3   | Przepływ użytkownika | Zapis i odczyt wyników w przeglądarce        | #1, #4, #5    | E2E                      | done         | context/changes/training-mvp-cycle/      |
+| #   | Phase name           | Goal (one line)                              | Risks covered | Test types               | Status | Change folder                            |
+| --- | -------------------- | -------------------------------------------- | ------------- | ------------------------ | ------ | ---------------------------------------- |
+| 1   | Dostęp obu ról       | Zachować ochronę danych                      | #2            | integration + HTTP smoke | done   | context/changes/assigned-trainee-access/ |
+| 2   | Reguły treningów     | Dowieść integralności danych i przejść stanu | #2–#6         | integration              | done   | context/changes/training-mvp-cycle/      |
+| 3   | Przepływ użytkownika | Zapis i odczyt wyników w przeglądarce        | #1, #4, #5    | E2E                      | done   | context/changes/training-mvp-cycle/      |
 
 ## 4. Stack
 
@@ -72,7 +72,7 @@ Wzorzec: `scripts/access-checks.mjs`. Fixture z `access-fixtures.mjs` tworzy los
 
 Wzorzec i reguły: `tests/e2e/seed.spec.ts`, `tests/e2e/AGENTS.md`. Test użytkownika ma chronić konkretne dane po reload. Sesje przygotowywane raz dla testu, niezależny kontekst każdej roli. Bez arbitralnych opóźnień. Sprawdzić czerwony wynik po kontrolowanym zepsuciu chronionego zachowania, następnie przywrócić kod i wynik zielony.
 
-Dowód z 2026-09-14: `npm run check:ci:local` przechodzi na świeżym izolowanym Supabase, w tym testy DB i 2/2 E2E. Mutacja `results: null` dała czerwony test na dokładnej wartości po reload; przywrócony kod przechodzi. `advanced.spec.ts` dodatkowo sprawdza superserie, zamiennik, ekran mobilny i blokadę przycisku przed hydratacją. Pełne wyniki i ograniczenia: `context/changes/training-mvp-cycle/verification.md`. Status `done` oznacza dostarczenie testów lokalnych; ręczne kryteria S-01 oraz wdrożenie pozostają osobnymi bramkami.
+Dowód z 2026-09-14: `npm run check:ci:local` przechodzi na świeżym izolowanym Supabase, w tym testy DB i 2/2 E2E. Mutacja `results: null` dała czerwony test na dokładnej wartości po reload; przywrócony kod przechodzi. `advanced.spec.ts` dodatkowo sprawdza superserie, zamiennik, ekran mobilny i blokadę przycisku przed hydratacją. Pełne wyniki i ograniczenia: `context/changes/training-mvp-cycle/verification.md`. Status `done` oznacza dostarczenie testów lokalnych; ręczne kryteria S-01 użytkownik potwierdził osobno 2026-09-14, a wdrożenie pozostaje odrębną bramką.
 
 ## 7. What We Deliberately Don't Test
 

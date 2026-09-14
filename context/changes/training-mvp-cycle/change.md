@@ -8,7 +8,7 @@ updated: 2026-09-14
 
 # Pełny przepływ treningu MVP
 
-Użytkownik potwierdził pełny pierwotny PRD oraz wymagania odznaki 10xBuilder: kontrola dostępu, sensowny CRUD, logika biznesowa, kontekst i test z perspektywy użytkownika. Zmiana łączy lokalną realizację S-02–S-09, zweryfikowaną testami DB, HTTP i dwoma E2E na świeżej bazie. S-01 zachowuje istniejące wyniki i otwarte ręczne kryteria. Wdrożenie zdalne pozostaje osobnym, niezatwierdzonym zakresem.
+Użytkownik potwierdził pełny pierwotny PRD oraz wymagania odznaki 10xBuilder: kontrola dostępu, sensowny CRUD, logika biznesowa, kontekst i test z perspektywy użytkownika. Zmiana łączy lokalną realizację S-02–S-09, zweryfikowaną testami DB, HTTP i dwoma E2E na świeżej bazie. S-01 ma komplet kryteriów; ręczny odbiór użytkownik potwierdził 2026-09-14. Wdrożenie zdalne pozostaje osobnym, niezatwierdzonym zakresem.
 
 Wykonanie równoległe zatwierdzone przez użytkownika. Źródła: [PRD](../../foundation/prd.md), [roadmapa](../../foundation/roadmap.md), [plan i kontrakt](plan.md).
 

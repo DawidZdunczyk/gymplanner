@@ -1,6 +1,6 @@
 # Weryfikacja S-01
 
-Data: 2026-09-14. Node: 22.22.3. Plan: [assigned-trainee-access](plan.md). Stan: **11/14 kryteriów zakończonych; 3 ręczne oczekują na użytkownika**.
+Data: 2026-09-14. Node: 22.22.3. Plan: [assigned-trainee-access](plan.md). Stan: **14/14 kryteriów zakończonych; odbiór ręczny potwierdzony przez użytkownika**.
 
 ## Wyniki
 
@@ -32,10 +32,10 @@ Uzasadnione pliki pomocnicze poza podstawową listą planu: `scripts/access-http
 
 - Faza 1: `fafbf2a` — profile, przypisania, RLS i testy bazy.
 - Faza 2: `b434ca6` — panele, karta, sesje i testy HTTP.
-- Faza 3: zmiany przygotowane i automatycznie zweryfikowane; formalne zamknięcie fazy i slice'a czeka na ręczne potwierdzenie 3.4–3.6. W ramach późniejszej, zatwierdzonej pracy nad pełnym MVP przygotowano lokalny zapis kodu i automatyzacji w Git bez oznaczania tych testów ręcznych jako wykonanych.
+- Faza 3: automatyzacja i kod zapisane w `f3e5a0a`; użytkownik potwierdził ręczne kryteria 3.4–3.6 dnia 2026-09-14. Cykl plan → implementacja → weryfikacja S-01 jest zakończony.
 
-Do potwierdzenia pozostają: widoki telefonu i obsługa klawiaturą; oba typy kont i wylogowanie; lokalna zmiana przypisania oraz komunikat przy niedostępności backendu. [Procedura operatora i testów](../../access/README.md). Nie oznaczono tych sprawdzeń na podstawie testów HTTP.
+Potwierdzony zakres ręczny: widoki telefonu i obsługa klawiaturą; oba typy kont i wylogowanie; lokalna zmiana przypisania oraz komunikat przy niedostępności backendu. [Procedura operatora i testów](../../access/README.md). Podstawą oznaczenia jest odpowiedź użytkownika „Potwierdzam” na wskazaną bramkę odbioru, a nie sam wynik testów HTTP. Agent nie deklaruje samodzielnego wykonania tych testów ręcznych.
 
-Użytkownik poprosił o pominięcie przygotowywania podglądu. Nie pozostawiono uruchomionego podglądu do oglądania aplikacji. Roadmapa pozostaje `in-progress`; żaden plik nie został zapisany do `context/archive/`.
+Użytkownik poprosił o pominięcie przygotowywania podglądu. Nie pozostawiono uruchomionego podglądu do oglądania aplikacji. S-01 w roadmapie ma status `done`; żaden plik nie został zapisany do `context/archive/`.
 
-Aktualizacja podczas pełnego MVP: regresja S-01 ponownie przeszła na świeżym `gymplanner-ci-ea217680` razem z testami treningów i E2E. Szczegóły: [weryfikacja pełnego MVP](../training-mvp-cycle/verification.md). Wynik automatyczny nie zmienia trzech oczekujących potwierdzeń użytkownika.
+Aktualizacja podczas pełnego MVP: regresja S-01 ponownie przeszła na świeżym `gymplanner-ci-ea217680` razem z testami treningów i E2E. Szczegóły: [weryfikacja pełnego MVP](../training-mvp-cycle/verification.md). Testy automatyczne i późniejsze potwierdzenie użytkownika stanowią osobne dowody. Zgoda na odbiór S-01 nie zatwierdza migracji ani publikacji na hostowanych środowiskach.

@@ -307,6 +307,6 @@ Lokalnie używać `db push --local`, bez `db reset`; typy generować z lokalnego
 
 #### Manual
 
-- [ ] 3.4 W przeglądarce trener loguje się bezpośrednio do panelu, rozróżnia osoby o tej samej nazwie, otwiera właściwą kartę i wraca do listy; widoki są czytelne na telefonie oraz obsługiwane klawiaturą.
-- [ ] 3.5 Podopieczny widzi własną nazwę i swojego trenera; konto bez przypisania i konto bez profilu pokazują właściwe komunikaty; wylogowanie odbiera dostęp, także po ponownym otwarciu panelu.
-- [ ] 3.6 Operator na lokalnych kontach wykonuje udokumentowaną zmianę przypisania; stary trener traci dostęp przy kolejnym odczycie, a nowy widzi wyłącznie właściwą osobę. Niedostępność lokalnego backendu daje komunikat błędu, nie pustą listę.
+- [x] 3.4 W przeglądarce trener loguje się bezpośrednio do panelu, rozróżnia osoby o tej samej nazwie, otwiera właściwą kartę i wraca do listy; widoki są czytelne na telefonie oraz obsługiwane klawiaturą.
+- [x] 3.5 Podopieczny widzi własną nazwę i swojego trenera; konto bez przypisania i konto bez profilu pokazują właściwe komunikaty; wylogowanie odbiera dostęp, także po ponownym otwarciu panelu.
+- [x] 3.6 Operator na lokalnych kontach wykonuje udokumentowaną zmianę przypisania; stary trener traci dostęp przy kolejnym odczycie, a nowy widzi wyłącznie właściwą osobę. Niedostępność lokalnego backendu daje komunikat błędu, nie pustą listę.

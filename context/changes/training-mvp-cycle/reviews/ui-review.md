@@ -4,7 +4,7 @@
 
 - Data: 2026-09-14.
 - Zakres: `TrainingManager`, `TrainerResults`, `WorkoutExecution`, lista i szczegóły treningu oraz karta podopiecznego; porównanie z PRD i fazami 2–3 planu.
-- Werdykt: **NEEDS ATTENTION — oczekuje na E2E i końcowe kontrole koordynatora**. Wykryte problemy interfejsu opisane poniżej poprawiono. To ograniczony przegląd UI, nie zatwierdzenie całej zmiany ani audyt bazy.
+- Werdykt końcowy: **APPROVED dla lokalnego zakresu UI**. Koordynator potwierdził E2E 2/2, końcowe kontrole Astro i przegląd obrazów mobilnych; [dowody](../verification.md). W chwili pierwotnego review te kontrole pozostawały oczekujące. Wykryte problemy interfejsu opisane poniżej poprawiono. To ograniczony przegląd UI, nie zatwierdzenie całej zmiany ani audyt bazy.
 - Triaging: poprawki własnych plików wykonane w ramach zlecenia; problemy cudzych plików przekazane ich autorowi. Nie zmieniano statusu całej zmiany.
 
 ## Ustalenia i decyzje

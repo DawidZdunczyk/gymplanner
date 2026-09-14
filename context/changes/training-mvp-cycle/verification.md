@@ -4,7 +4,7 @@ Data: 2026-09-14. Środowisko: lokalne, Node 22.22.3, prawdziwy Supabase Auth/Po
 
 ## Wynik
 
-Implementacja i automatyczna weryfikacja lokalnego MVP są zakończone. Pięć kryteriów 10xBuilder podanych przez użytkownika ma dowody poniżej. Nie jest to potwierdzenie przyznania odznaki ani zdalnego wdrożenia. Formalne zakończenie S-01 nadal wymaga ręcznego potwierdzenia trzech kryteriów jego planu.
+Implementacja i automatyczna weryfikacja lokalnego MVP są zakończone. Pięć kryteriów 10xBuilder podanych przez użytkownika ma dowody poniżej. Nie jest to potwierdzenie przyznania odznaki ani zdalnego wdrożenia. Użytkownik potwierdził ręczny odbiór S-01 wiadomością „Potwierdzam” z 2026-09-14; jego plan ma teraz 14/14 zakończonych kryteriów.
 
 | Kryterium użytkownika          | Implementacja i dowód                                                                                                                                                                                        |
 | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -50,7 +50,7 @@ Koordynator obejrzał rzeczywiste screenshoty mobilnego wykonania oraz porównan
 
 ## Pozostałe granice
 
-- S-01: nie potwierdzono ręcznie punktów 3.4–3.6 — telefon/klawiatura, oba konta i wylogowanie, zmiana przypisania oraz komunikat przy niedostępności backendu. Stan pozostaje w [planie S-01](../assigned-trainee-access/plan.md).
+- S-01: punkty ręczne 3.4–3.6 potwierdzone przez użytkownika; dowód i zakres odbioru zapisano w [weryfikacji S-01](../assigned-trainee-access/verification.md).
 - Zdalne migracje i publikacja: nie wykonano. Zatwierdzony plan startera nie obejmuje schematu ról ani treningów. Przed udostępnieniem potrzebny jest zatwierdzony plan, eksport i próba odtworzenia danych, zdalne testy oraz sprawdzenie wycofania wersji.
 - Lista historii ma limit odpowiedzi Supabase (lokalnie 1000 rekordów); przyszła paginacja jest opisana w review. Komentarz w dwóch oknach tego samego autora stosuje ostatni zapis. Zmiana trenera ukrywa historię poprzedniej relacji również podopiecznemu; nie przenosi jej automatycznie nowemu trenerowi.
 - Nie sprawdzono jeszcze hipotezy wartości u rzeczywistych trenerów i podopiecznych. AI jest opcjonalne i pozostaje w backlogu.
