@@ -43,8 +43,8 @@ Końcowo Node 22.22.3: Astro sync → lint → Astro check → build, testy regr
 
 ## Progress
 
-- [x] Model danych, reguły i API
-- [x] Panel trenera oraz porównanie wyników
-- [x] Wykonanie, superserie, komentarze i korekty podopiecznego
-- [x] Testy scenariuszy PRD i przeglądarkowy test użytkownika
-- [x] Końcowe kontrole, przegląd i dokumentacja zaliczeniowa
+- [x] Model danych, reguły i API — f3e5a0a
+- [x] Panel trenera oraz porównanie wyników — f3e5a0a
+- [x] Wykonanie, superserie, komentarze i korekty podopiecznego — f3e5a0a
+- [x] Testy scenariuszy PRD i przeglądarkowy test użytkownika — f3e5a0a
+- [x] Końcowe kontrole, przegląd i dokumentacja zaliczeniowa — f3e5a0a
